@@ -2,12 +2,12 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class GibbetGame {
-	protected String guessNextLetter = "Try to guess the next letter!";
 	protected String rightGuess = "You are right!";
 	protected String wrongGuess = "There is no such letter in my word!";
 	protected String wrongMessage = "I don`t understand!";
 	protected String guessedLetter = "You have already guessed this letter!";
 	private String[] words = new String[] { "gibbet", "death", "sessions", "pain" };
+	Random rnd = new Random();
 	
 	private String hiddenWord;
 	private char[] guessedLetters;
@@ -33,7 +33,6 @@ public class GibbetGame {
 	}
 	
 	private String chooseWord() {
-		var rnd = new Random();
 		var wordIndex = rnd.nextInt(words.length);
 		return words[wordIndex];
 	}
@@ -70,11 +69,11 @@ public class GibbetGame {
 		return wrongGuesses == guessLimit;
 	}
 	
-	public String checkLetter(char message) {
-		if (letterIsInGuessedLetters(message))
+	public String checkLetter(char letter) {
+		if (letterIsInGuessedLetters(letter))
 			return guessedLetter;
 		
-		if (letterIsInWord(message))
+		if (letterIsInWord(letter))
 			return String.join("\n", showWord(), rightGuess);
 		
 		wrongGuesses++;
