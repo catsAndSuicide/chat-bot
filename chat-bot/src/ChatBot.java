@@ -11,17 +11,17 @@ public class ChatBot {
 	private String nextLetter = "Try to guess the next letter!";
 	private String end = "Game over!";
 
-	private GibbetGame currentGame = null;
+	private GibbetGameInitializer currentGameInitializer = null;
 	
 	public String checkWinOrLoss() {
-		if (currentGame.isWin())
+		if (currentGameInitializer.game.isWin())
 		{
-			currentGame = null;
+			currentGameInitializer = null;
 			return win;
 		}
-		if (currentGame.isLoss())
+		if (currentGameInitializer.game.isLoss())
 		{
-			currentGame = null;
+			currentGameInitializer = null;
 			return loss;
 		}
 		return nextLetter;
@@ -30,24 +30,23 @@ public class ChatBot {
 	public String reply(String message){
 		switch (message) {
 			case "/start":
-				currentGame = new GibbetGame();
-				return String.join("\n", start, currentGame.showWord());
+				currentGameInitializer = new GibbetGameInitializer();
+				return String.join("\n", start, currentGameInitializer.game.showWord());
 			case "/help":
 				return help;
 			case "/end":
-				currentGame = null;
+				currentGameInitializer = null;
 				return end;
 			case "/show":
-				if (currentGame != null)
-					return currentGame.showWord();
+				if (currentGameInitializer != null)
+					return currentGameInitializer.game.showWord();
 				return "";
 			default:
-				if (currentGame != null) {
-					var answer = currentGame.processMessage(message);
+				if (currentGameInitializer != null) {
+					var answer = currentGameInitializer.game.processMessage(message);
 					return String.join("\n", answer, checkWinOrLoss());
 				}
 				return "";
 		}
 	}
 }
-

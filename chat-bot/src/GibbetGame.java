@@ -1,42 +1,28 @@
 import java.util.Arrays;
-import java.util.Random;
 
 public class GibbetGame {
 	protected String rightGuess = "You are right!";
 	protected String wrongGuess = "There is no such letter in my word!";
 	protected String wrongMessage = "I don`t understand!";
 	protected String guessedLetter = "You have already guessed this letter!";
-	private String[] words = new String[] { "gibbet", "death", "sessions", "pain" };
-	Random rnd = new Random();
 	
 	private String hiddenWord;
 	private char[] guessedLetters;
 	private int wrongGuesses;
 	private int guessLimit;
 	
-	GibbetGame(){
-		hiddenWord = chooseWord();
-		guessedLetters = new char[hiddenWord.length()];
-		Arrays.fill(guessedLetters, '*');
-		
-		wrongGuesses = 0;
-		guessLimit = 5;
-	}
-	
-	GibbetGame(String word, int limit){
+	public GibbetGame(String word, int limit){
 		hiddenWord = word;
 		guessedLetters = new char[hiddenWord.length()];
 		Arrays.fill(guessedLetters, '*');
-		
 		wrongGuesses = 0;
 		guessLimit = limit;
 	}
 	
-	private String chooseWord() {
-		var wordIndex = rnd.nextInt(words.length);
-		return words[wordIndex];
+	public GibbetGame(){
+		
 	}
-	
+
 	public String showWord() {
 		return String.valueOf(guessedLetters);
 	}

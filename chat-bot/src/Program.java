@@ -5,6 +5,7 @@ public class Program {
 	public static void main(String[] args) {
 		var chatBot = new ChatBot();
 		System.out.println(chatBot.help);
+		@SuppressWarnings("resource")
 		Scanner input = new Scanner(System.in);
 	
 		while (true) {
