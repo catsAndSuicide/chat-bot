@@ -1,10 +1,10 @@
 public class ChatBot {
 	protected String help = "This is a Gibbet-game bot.\n"
-				   + "/start - to start a new game.\n"
-			       + "/end - to end the current game.\n"
-				   + "/show - to show the word, which you guess.\n"
-			       + "/help - to see this message.\n"
-				   + "/exit - to close chat-bot.";
+						  + "/start - to start a new game.\n"
+						  + "/end - to end the current game.\n"
+						  + "/show - to show the word, which you guess.\n"
+						  + "/help - to see this message.\n"
+						  + "/exit - to close chat-bot.";
 	private String start = "Game started. Guess one letter!";
 	private String win = "You win!";
 	private String loss = "You lose!";
