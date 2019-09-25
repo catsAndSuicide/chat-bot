@@ -1,3 +1,4 @@
+package chatbot;
 import java.util.Random;
 
 public class GibbetGameInitializer {
