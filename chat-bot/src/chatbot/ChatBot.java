@@ -12,17 +12,23 @@ public class ChatBot {
 	private String nextLetter = "Try to guess the next letter!";
 	private String end = "Game over!";
 
-	private GibbetGameInitializer currentGameInitializer = null;
+	private GibbetGameFactory gameFactory;
+	private GibbetGame game;
 	
+	public ChatBot(GibbetGameFactory gameFactory) {
+		super();
+		this.gameFactory = gameFactory;
+	}
+
 	public String checkWinOrLoss() {
-		if (currentGameInitializer.game.isWin())
+		if (game.isWin())
 		{
-			currentGameInitializer = null;
+			game = null;
 			return win;
 		}
-		if (currentGameInitializer.game.isLoss())
+		if (game.isLoss())
 		{
-			currentGameInitializer = null;
+			game = null;
 			return loss;
 		}
 		return nextLetter;
@@ -31,21 +37,25 @@ public class ChatBot {
 	public String reply(String message){
 		switch (message) {
 			case "/start":
-				currentGameInitializer = new GibbetGameInitializer();
-				return String.join("\n", start, currentGameInitializer.game.showWord());
+				game = gameFactory.createNew();
+				return String.join("\n", start, game.showWord());
 			case "/help":
 				return help;
 			case "/end":
-				currentGameInitializer = null;
+				game = null;
 				return end;
 			case "/show":
-				if (currentGameInitializer != null)
-					return currentGameInitializer.game.showWord();
+				if (game != null)
+					return game.showWord();
 				return "";
 			default:
-				if (currentGameInitializer != null) {
-					var answer = currentGameInitializer.game.processMessage(message);
-					return String.join("\n", answer, checkWinOrLoss());
+				if (game != null) {
+					if (message.matches("[a-z]{1}"))
+					{
+						var answer = game.checkLetter(message.charAt(0));
+						return String.join("\n", answer, checkWinOrLoss());
+					}
+					return game.wrongMessage;
 				}
 				return "";
 		}

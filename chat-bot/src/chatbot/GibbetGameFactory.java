@@ -1,14 +1,17 @@
 package chatbot;
 import java.util.Random;
 
-public class GibbetGameInitializer {
+public class GibbetGameFactory {
 	
 	private String[] words = new String[] { "gibbet", "death", "sessions", "pain" };
-	private Random rnd = new Random();
-	public GibbetGame game;
+	private Random rnd;
+
+	public GibbetGameFactory(Random rnd) {
+		this.rnd = rnd;
+	}
 	
-	public GibbetGameInitializer() {
-		game = new GibbetGame(chooseWord(), 5);
+	public GibbetGame createNew() {
+		return new GibbetGame(chooseWord(), 5);
 	}
 
 	private String chooseWord() {

@@ -75,16 +75,12 @@ class GibbetGameTest {
 		assertEquals(gibbetGame.isLoss(), true);
 	}
 	
-	@Test
-	void processRightMessage() {
-		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.processMessage("i"), 
-				String.join("\n", gibbetGame.showWord(), gibbetGame.rightGuess));
-	}
-	
-	@Test
-	void processWrongMessage() {
-		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.processMessage("ib"), gibbetGame.wrongMessage);
-	}
+	/*
+	 * @Test void processRightMessage() { var gibbetGame = new GibbetGame("gibbet",
+	 * 5); assertEquals(gibbetGame.processMessage("i"), String.join("\n",
+	 * gibbetGame.showWord(), gibbetGame.rightGuess)); }
+	 * 
+	 * @Test void processWrongMessage() { var gibbetGame = new GibbetGame("gibbet",
+	 * 5); assertEquals(gibbetGame.processMessage("ib"), gibbetGame.wrongMessage); }
+	 */
 }

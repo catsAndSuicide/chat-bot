@@ -62,10 +62,5 @@ public class GibbetGame {
 		wrongGuesses++;
 		return String.join("\n", showWord(), wrongGuess);
 	}
-		
-	public String processMessage(String message) {
-		if (message.matches("[a-z]{1}"))
-			return checkLetter(message.charAt(0));
-		return wrongMessage;
-	}
+
 }
