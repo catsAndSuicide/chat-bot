@@ -4,7 +4,7 @@ import java.util.Arrays;
 public class GibbetGame {
 	protected String rightGuess = "You are right!";
 	protected String wrongGuess = "There is no such letter in my word!";
-	protected String wrongMessage = "I don`t understand!";
+	protected String wrongMessage = "I do not understand!";
 	protected String guessedLetter = "You have already guessed this letter!";
 	
 	private String hiddenWord;
@@ -15,7 +15,7 @@ public class GibbetGame {
 	public GibbetGame(String word, int limit){
 		hiddenWord = word;
 		guessedLetters = new char[hiddenWord.length()];
-		Arrays.fill(guessedLetters, '*');
+		Arrays.fill(guessedLetters, '.');
 		wrongGuesses = 0;
 		guessLimit = limit;
 	}

@@ -1,6 +1,7 @@
 package chatbot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -9,6 +10,12 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class TelegramBot extends TelegramLongPollingBot{
+	
+	private ChatBot chatBot;
+	
+	public TelegramBot() {
+		chatBot = new ChatBot(new GibbetGameFactory(new Random()));
+	}
 
 	public static void main(String[] args) {
 		ApiContextInitializer.init();
@@ -23,22 +30,30 @@ public class TelegramBot extends TelegramLongPollingBot{
 
 	@Override
 	public void onUpdateReceived(Update update) {
-		Message message = update.getMessage();
-		sendMsg(update.getMessage().getChatId().toString(), message);
+		var message = update.getMessage().getText();
+		var answer = chatBot.reply(message);
+		sendMsg(update.getMessage().getChatId().toString(), answer);
 	}
 
-	private void sendMsg(String string, Message message) {
-		// TODO Auto-generated method stub
-		
+	private void sendMsg(String chatId, String answer) {
+		SendMessage sendMessage = new SendMessage();
+        sendMessage.enableMarkdown(true);
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(answer);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+        	e.printStackTrace();
+        }
 	}
 
 	@Override
 	public String getBotUsername() { 
-		return "botUsername";
+		return "BotUsername";
 	}
 
 	@Override
 	public String getBotToken() { 
-		return "botToken"; 
+		return "BotToken"; 
 	}
 }

@@ -20,7 +20,7 @@ public class ChatBot {
 		this.gameFactory = gameFactory;
 	}
 
-	public String checkWinOrLoss() {
+	private String checkWinOrLoss() {
 		if (game.isWin())
 		{
 			game = null;
@@ -47,7 +47,7 @@ public class ChatBot {
 			case "/show":
 				if (game != null)
 					return game.showWord();
-				return "";
+				return help;
 			default:
 				if (game != null) {
 					if (message.matches("[a-z]{1}"))
@@ -57,7 +57,7 @@ public class ChatBot {
 					}
 					return game.wrongMessage;
 				}
-				return "";
+				return help;
 		}
 	}
 }
