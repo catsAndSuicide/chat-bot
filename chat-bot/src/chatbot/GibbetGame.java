@@ -2,10 +2,6 @@ package chatbot;
 import java.util.Arrays;
 
 public class GibbetGame {
-	protected String rightGuess = "You are right!";
-	protected String wrongGuess = "There is no such letter in my word!";
-	protected String wrongMessage = "I do not understand!";
-	protected String guessedLetter = "You have already guessed this letter!";
 	
 	private String hiddenWord;
 	private char[] guessedLetters;
@@ -52,15 +48,29 @@ public class GibbetGame {
 		return wrongGuesses == guessLimit;
 	}
 	
-	public String checkLetter(char letter) {
+	public gameState checkLetter(char letter) {
 		if (letterIsInGuessedLetters(letter))
-			return guessedLetter;
+			
+			return gameState.repeatedGuess;
 		
 		if (letterIsInWord(letter))
-			return String.join("\n", showWord(), rightGuess);
+			return gameState.rightGuess;
 		
 		wrongGuesses++;
-		return String.join("\n", showWord(), wrongGuess);
+		return gameState.wrongGuess;
+	}
+	
+	public enum gameState {
+		wrongGuess,
+		rightGuess,
+		repeatedGuess,
+		loss, 
+		win,
+		help,
+		start,
+		end,
+		showWord,
+		strangeGuess
 	}
 
 }

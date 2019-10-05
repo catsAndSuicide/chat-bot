@@ -48,14 +48,14 @@ class GibbetGameTest {
 	void checkRightLetter() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
 		assertEquals(gibbetGame.checkLetter('e'), 
-				String.join("\n", gibbetGame.showWord(), gibbetGame.rightGuess));
+				GibbetGame.gameState.rightGuess);
 	}
 	
 	@Test
 	void checkWrongLetter() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
 		assertEquals(gibbetGame.checkLetter('a'), 
-				String.join("\n", gibbetGame.showWord(), gibbetGame.wrongGuess));
+				GibbetGame.gameState.wrongGuess);
 	}
 	
 	@Test

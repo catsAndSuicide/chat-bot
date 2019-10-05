@@ -1,16 +1,8 @@
 package chatbot;
+
+import java.util.ArrayList;
+
 public class ChatBot {
-	protected String help = "This is a Gibbet-game bot.\n"
-						  + "/start - to start a new game.\n"
-						  + "/end - to end the current game.\n"
-						  + "/show - to show the word, which you guess.\n"
-						  + "/help - to see this message.\n"
-						  + "/exit - to close chat-bot.";
-	private String start = "Game started. Guess one letter!";
-	private String win = "You win!";
-	private String loss = "You lose!";
-	private String nextLetter = "Try to guess the next letter!";
-	private String end = "Game over!";
 
 	private GibbetGameFactory gameFactory;
 	private GibbetGame game;
@@ -20,44 +12,65 @@ public class ChatBot {
 		this.gameFactory = gameFactory;
 	}
 
-	private String checkWinOrLoss() {
+	private GibbetGame.gameState checkWinOrLoss() {
 		if (game.isWin())
 		{
+			var result = GibbetGame.gameState.win;
 			game = null;
-			return win;
+			return result;
 		}
 		if (game.isLoss())
 		{
+			var result = GibbetGame.gameState.loss;
 			game = null;
-			return loss;
+			return result;
 		}
-		return nextLetter;
+		return null;
 	}
 	
-	public String reply(String message){
+	public ArrayList<BotReply> reply(String message){
+		var result = new ArrayList<BotReply>();
+		var variables = new ArrayList<String>();
 		switch (message) {
 			case "/start":
 				game = gameFactory.createNew();
-				return String.join("\n", start, game.showWord());
+				result.add(new BotReply(new ArrayList<String>(), GibbetGame.gameState.start));
+				variables.add(game.showWord());
+				result.add(new BotReply(variables, GibbetGame.gameState.showWord));
+				return result;
 			case "/help":
-				return help;
+				result.add(new BotReply(new ArrayList<String>(), GibbetGame.gameState.help));
+				return result;
 			case "/end":
 				game = null;
-				return end;
+				result.add(new BotReply(new ArrayList<String>(), GibbetGame.gameState.end));
+				return result;
 			case "/show":
-				if (game != null)
-					return game.showWord();
-				return help;
+				if (game != null) {
+					variables.add(game.showWord());
+					result.add(new BotReply(variables, GibbetGame.gameState.showWord));
+					return result;
+				}
+				result.add(new BotReply(new ArrayList<String>(), GibbetGame.gameState.help));
+				return result;
 			default:
 				if (game != null) {
 					if (message.matches("[a-z]{1}"))
 					{
 						var answer = game.checkLetter(message.charAt(0));
-						return String.join("\n", answer, checkWinOrLoss());
+						result.add(new BotReply(new ArrayList<String>(), answer));
+						variables.add(game.showWord());
+						result.add(new BotReply(variables, GibbetGame.gameState.showWord));
+						var winOrLoss = checkWinOrLoss();
+						if (winOrLoss != null)
+							result.add(new BotReply(new ArrayList<String>(), winOrLoss));
+						return result;
 					}
-					return game.wrongMessage;
+					result.add(new BotReply(new ArrayList<String>(), GibbetGame.gameState.strangeGuess));
+					return result;
 				}
-				return help;
+				result.add(new BotReply(new ArrayList<String>(), GibbetGame.gameState.help));
+				return result;
 		}
 	}
 }

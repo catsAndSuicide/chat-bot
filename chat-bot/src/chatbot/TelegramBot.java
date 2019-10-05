@@ -3,7 +3,6 @@ package chatbot;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -14,10 +13,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TelegramBot extends TelegramLongPollingBot{
 	
 	private HashMap<String, ChatBot> chatBots;
+	private BotMessage botMessage;
 	
 	public TelegramBot() {
 		chatBots = new HashMap<String, ChatBot>();
-		//chatBots = new ChatBot(new GibbetGameFactory(new Random()));
+		botMessage = new BotMessage();
 	}
 
 	public static void main(String[] args) {
@@ -38,7 +38,11 @@ public class TelegramBot extends TelegramLongPollingBot{
 		if (!chatBots.containsKey(id)) {
 			chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random())));
 		}
-		var answer = chatBots.get(id).reply(message);
+		var replies = chatBots.get(id).reply(message);
+		var answer = "";
+		for (var i = 0; i < replies.size(); i++) {
+			answer += "\n" + botMessage.getMessage(replies.get(i));
+		}
 		sendMsg(update.getMessage().getChatId().toString(), answer);
 	}
 
@@ -56,11 +60,11 @@ public class TelegramBot extends TelegramLongPollingBot{
 
 	@Override
 	public String getBotUsername() { 
-		return "BotUsername";
+		return "blablabla";
 	}
 
 	@Override
 	public String getBotToken() { 
-		return "BotToken"; 
+		return "blablabla"; 
 	}
 }
