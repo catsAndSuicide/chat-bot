@@ -8,6 +8,19 @@ public class GibbetGame {
 	private int wrongGuesses;
 	private int guessLimit;
 	
+	public enum gameState {
+		wrongGuess,
+		rightGuess,
+		repeatedGuess,
+		loss, 
+		win,
+		help,
+		start,
+		end,
+		showWord,
+		strangeGuess
+	}
+	
 	public GibbetGame(String word, int limit){
 		hiddenWord = word;
 		guessedLetters = new char[hiddenWord.length()];
@@ -18,6 +31,10 @@ public class GibbetGame {
 
 	public String showWord() {
 		return String.valueOf(guessedLetters);
+	}
+	
+	public String showHiddenWord() {
+		return hiddenWord;
 	}
 
 	public boolean letterIsInWord(char letter) {
@@ -33,8 +50,8 @@ public class GibbetGame {
 	}
 	
 	public boolean letterIsInGuessedLetters(char letter) {
-		for (var i = 0; i < guessedLetters.length; i++) {
-			if (guessedLetters[i] == letter)
+		for (char guessedLetter : guessedLetters) {
+			if (guessedLetter == letter)
 				return true;
 			}
 		return false;
@@ -59,18 +76,4 @@ public class GibbetGame {
 		wrongGuesses++;
 		return gameState.wrongGuess;
 	}
-	
-	public enum gameState {
-		wrongGuess,
-		rightGuess,
-		repeatedGuess,
-		loss, 
-		win,
-		help,
-		start,
-		end,
-		showWord,
-		strangeGuess
-	}
-
 }

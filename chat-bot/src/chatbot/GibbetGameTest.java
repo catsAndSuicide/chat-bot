@@ -1,6 +1,9 @@
 package chatbot;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import org.junit.jupiter.api.Test;
 
 class GibbetGameTest {
@@ -74,13 +77,4 @@ class GibbetGameTest {
 		gibbetGame.checkLetter('d');
 		assertEquals(gibbetGame.isLoss(), true);
 	}
-	
-	/*
-	 * @Test void processRightMessage() { var gibbetGame = new GibbetGame("gibbet",
-	 * 5); assertEquals(gibbetGame.processMessage("i"), String.join("\n",
-	 * gibbetGame.showWord(), gibbetGame.rightGuess)); }
-	 * 
-	 * @Test void processWrongMessage() { var gibbetGame = new GibbetGame("gibbet",
-	 * 5); assertEquals(gibbetGame.processMessage("ib"), gibbetGame.wrongMessage); }
-	 */
 }

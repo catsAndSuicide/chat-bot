@@ -2,6 +2,7 @@ package chatbot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -35,15 +36,20 @@ public class TelegramBot extends TelegramLongPollingBot{
 	public void onUpdateReceived(Update update) {
 		var message = update.getMessage().getText();
 		var id = update.getMessage().getChatId().toString();
-		if (!chatBots.containsKey(id)) {
-			chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random())));
+		var replies = new ArrayList<BotReply>();
+		
+		synchronized(chatBots) {
+			if (!chatBots.containsKey(id)) {
+				chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random())));
+			}
+			replies = chatBots.get(id).reply(message);
 		}
-		var replies = chatBots.get(id).reply(message);
+		
 		var answer = "";
-		for (var i = 0; i < replies.size(); i++) {
-			answer += "\n" + botMessage.getMessage(replies.get(i));
+		for (BotReply reply : replies) {
+			answer += "\n" + botMessage.getMessage(reply);
 		}
-		sendMsg(update.getMessage().getChatId().toString(), answer);
+		sendMsg(id, answer);
 	}
 
 	private void sendMsg(String chatId, String answer) {
@@ -59,12 +65,12 @@ public class TelegramBot extends TelegramLongPollingBot{
 	}
 
 	@Override
-	public String getBotUsername() { 
-		return "blablabla";
+	public String getBotUsername() {
+		return System.getenv("BOT_USERNAME");
 	}
 
 	@Override
 	public String getBotToken() { 
-		return "blablabla"; 
+		return System.getenv("BOT_TOKEN"); 
 	}
 }

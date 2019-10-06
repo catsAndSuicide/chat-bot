@@ -15,15 +15,13 @@ public class ChatBot {
 	private GibbetGame.gameState checkWinOrLoss() {
 		if (game.isWin())
 		{
-			var result = GibbetGame.gameState.win;
 			game = null;
-			return result;
+			return GibbetGame.gameState.win;
 		}
 		if (game.isLoss())
 		{
-			var result = GibbetGame.gameState.loss;
 			game = null;
-			return result;
+			return GibbetGame.gameState.loss;
 		}
 		return null;
 	}
@@ -31,6 +29,7 @@ public class ChatBot {
 	public ArrayList<BotReply> reply(String message){
 		var result = new ArrayList<BotReply>();
 		var variables = new ArrayList<String>();
+		
 		switch (message) {
 			case "/start":
 				game = gameFactory.createNew();
@@ -55,15 +54,17 @@ public class ChatBot {
 				return result;
 			default:
 				if (game != null) {
-					if (message.matches("[a-z]{1}"))
+					if (message.matches("[A-Za-z]{1}"))
 					{
-						var answer = game.checkLetter(message.charAt(0));
+						var answer = game.checkLetter(Character.toLowerCase(message.charAt(0)));
 						result.add(new BotReply(new ArrayList<String>(), answer));
 						variables.add(game.showWord());
 						result.add(new BotReply(variables, GibbetGame.gameState.showWord));
+						
 						var winOrLoss = checkWinOrLoss();
-						if (winOrLoss != null)
+						if (winOrLoss != null) {
 							result.add(new BotReply(new ArrayList<String>(), winOrLoss));
+						}
 						return result;
 					}
 					result.add(new BotReply(new ArrayList<String>(), GibbetGame.gameState.strangeGuess));
