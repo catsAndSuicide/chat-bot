@@ -9,7 +9,7 @@ public class Program {
 		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
 		var botMessage = new BotMessage();
 		
-		System.out.println(botMessage.getMessage(chatBot.reply("/help").get(0)));
+		System.out.println(botMessage.getMessage(chatBot.reply("/help")));
 
 		Scanner input = new Scanner(System.in);
 		try {
@@ -17,14 +17,8 @@ public class Program {
 				String message = input.nextLine();
 				if (message.equals("/exit"))
 					break;
-
-				var answer = "";
-				var replies = chatBot.reply(message);
-				for (BotReply reply : replies) {
-					answer += "\n" + botMessage.getMessage(reply);
-				}
 				
-				System.out.println(answer);
+				System.out.println(botMessage.getMessage(chatBot.reply(message)));
 			}
 		} finally {
 			input.close();

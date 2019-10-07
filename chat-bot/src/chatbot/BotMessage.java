@@ -1,35 +1,51 @@
 package chatbot;
 
 public class BotMessage {
-	
-	public String getMessage(BotReply reply) {
-		switch(reply.gameState) {
-		    case help:
-			    return "This is a Gibbet-game bot.\n"
-				  + "/start - to start a new game.\n"
-				  + "/end - to end the current game.\n"
-				  + "/show - to show the word, which you guess.\n"
-				  + "/help - to see this message.\n"
-				  + "/exit - to close chat-bot.";
-		    case start:
-		    	return "Game started. Guess one letter!";
-		    case win:
-		    	return "You win!";
-		    case loss:
-		    	return "You lose!";
-		    case end:
-		    	return "Game over!";
-		    case rightGuess:
-		    	return "You are right!";
-		    case wrongGuess:
-		    	return "There is no such letter in my word!";
-		    case repeatedGuess:
-		    	return "You have already guessed this letter!";
-		    case showWord:
-		    	return reply.variables.get(0);
-		    default:
-		    	return "I do not understand!";
-		}
-	}
 
+	public String getMessage(BotReply reply) {
+		var message = "";
+
+		for (var i = 0; i < reply.gameStates.size(); i++) {
+			switch(reply.gameStates.get(i)) {
+				case help:
+					message += "This is a Gibbet-game bot.\n"
+							+ "/start - to start a new game.\n"
+							+ "/end - to end the current game.\n"
+							+ "/show - to show the word, which you guess.\n"
+							+ "/help - to see this message.\n"
+							+ "/exit - to close chat-bot.";
+					break;
+				case start:
+					message += "Game started. Guess one letter!";
+					break;
+				case win:
+					message += "You win!";
+					break;
+				case loss:
+					message += "You lose!";
+					break;
+				case end:
+					message += "Game over!";
+					break;
+				case rightGuess:
+					message += "You are right!";
+					break;
+				case wrongGuess:
+					message += "There is no such letter in my word!";
+					break;
+				case repeatedGuess:
+					message += "You have already guessed this letter!";
+					break;
+				case showWord:
+					message += reply.guessedWord;
+					break;
+				default:
+					message += "I do not understand!";
+					break;
+			}
+			if (i != reply.gameStates.size() - 1)
+			message += "\n";
+		}
+		return message;
+	}
 }

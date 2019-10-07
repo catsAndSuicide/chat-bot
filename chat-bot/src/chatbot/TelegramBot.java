@@ -2,7 +2,6 @@ package chatbot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -36,18 +35,13 @@ public class TelegramBot extends TelegramLongPollingBot{
 	public void onUpdateReceived(Update update) {
 		var message = update.getMessage().getText();
 		var id = update.getMessage().getChatId().toString();
-		var replies = new ArrayList<BotReply>();
+		var answer = "";
 		
 		synchronized(chatBots) {
 			if (!chatBots.containsKey(id)) {
 				chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random())));
 			}
-			replies = chatBots.get(id).reply(message);
-		}
-		
-		var answer = "";
-		for (BotReply reply : replies) {
-			answer += "\n" + botMessage.getMessage(reply);
+			answer = botMessage.getMessage(chatBots.get(id).reply(message));
 		}
 		sendMsg(id, answer);
 	}
@@ -57,6 +51,7 @@ public class TelegramBot extends TelegramLongPollingBot{
         sendMessage.enableMarkdown(true);
         sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
+        
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
