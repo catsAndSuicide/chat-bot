@@ -7,7 +7,7 @@ public class Program {
 	
 	public static void main(String[] args) {
 		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		var botMessage = new BotMessage();
+		var botMessage = new BotMessageMaker();
 		
 		System.out.println(botMessage.getMessage(chatBot.reply("/help")));
 

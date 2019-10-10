@@ -1,11 +1,19 @@
 package chatbot;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import chatbot.ChatBot.ReplyType;
+import chatbot.GibbetGame.TurnResult;
+
 class GibbetGameTest {
+	
+	private ChatBot chatBot;
+	private ArrayList<ReplyType> replyTypes;
+	private BotReply reply;
 
 	@Test
 	void showEmptyWord() {
@@ -49,131 +57,137 @@ class GibbetGameTest {
 	@Test
 	void checkRightLetter() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.checkLetter('e'), 
-				GibbetGame.gameState.rightGuess);
+		assertEquals(gibbetGame.receiveLetter('e'), TurnResult.rightGuess);
 	}
 	
 	@Test
 	void checkWrongLetter() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.checkLetter('a'), 
-				GibbetGame.gameState.wrongGuess);
+		assertEquals(gibbetGame.receiveLetter('a'), TurnResult.wrongGuess);
 	}
 	
 	@Test
 	void isWin() {
 		var gibbetGame = new GibbetGame("cat", 5);
-		gibbetGame.checkLetter('c');
-		gibbetGame.checkLetter('a');
-		gibbetGame.checkLetter('t');
+		gibbetGame.receiveLetter('c');
+		gibbetGame.receiveLetter('a');
+		gibbetGame.receiveLetter('t');
 		assertEquals(gibbetGame.isWin(), true);
 	}
 	
 	@Test
 	void isLoss() {
 		var gibbetGame = new GibbetGame("cat", 2);
-		gibbetGame.checkLetter('b');
-		gibbetGame.checkLetter('d');
+		gibbetGame.receiveLetter('b');
+		gibbetGame.receiveLetter('d');
 		assertEquals(gibbetGame.isLoss(), true);
 	}
 	
+	private void createReply(String message) {
+		chatBot = new ChatBot(new GibbetGameFactory(new Random()));
+		reply = chatBot.reply(message);
+		
+		replyTypes = new ArrayList<ReplyType>();
+	}
+	
+	private void checkReply(BotReply reply,
+							String guessedWord,
+							ArrayList<ReplyType> replyTypes, 
+							TurnResult turnResult) {
+
+		assertEquals(reply.guessedWord, guessedWord);
+		assertEquals(reply.replyTypes, replyTypes);
+		assertEquals(reply.turnResult, turnResult);
+	}
+
 	@Test
 	void replyHelp() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		var reply = chatBot.reply("/help");
+		createReply("/help");
+		replyTypes.add(ReplyType.help);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.help));
-		assertEquals(reply.guessedWord, "");
+		checkReply(reply, "", replyTypes, null);
 	}
 	
 	@Test
 	void replyStart() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		var reply = chatBot.reply("/start");
+		createReply("/start");
+		replyTypes.add(ReplyType.start);
+		replyTypes.add(ReplyType.show);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.start) &&
-				   reply.gameStates.contains(GibbetGame.gameState.showWord));
-		assertEquals(reply.guessedWord, chatBot.game.showWord());
+		checkReply(reply, chatBot.game.showWord(), replyTypes, null);
 	}
 	
 	@Test
 	void replyShowWhenNullGame() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		var reply = chatBot.reply("/show");
+		createReply("/show");
+		replyTypes.add(ReplyType.help);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.help));
-		assertEquals(reply.guessedWord, "");
+		checkReply(reply, "", replyTypes, null);
 	}
 	
 	@Test
 	void replyShowWhenGameStarted() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		chatBot.reply("/start");
-		var reply = chatBot.reply("/show");
+		createReply("/start");
+		reply = chatBot.reply("/show");
+		replyTypes.add(ReplyType.show);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.showWord));
-		assertEquals(reply.guessedWord, chatBot.game.showWord());
+		checkReply(reply, chatBot.game.showWord(), replyTypes, null);
 	}
 	
 	@Test
 	void replyEnd() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		var reply = chatBot.reply("/end");
+		createReply("/end");
+		replyTypes.add(ReplyType.end);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.end));
-		assertEquals(reply.guessedWord, "");
+		checkReply(reply, "", replyTypes, null);
+	}
+	
+	private void createReplyForGuess(String word, int limit, String message) {
+		chatBot = new ChatBot(new GibbetGameFactory(new Random()));
+		chatBot.game = new GibbetGame(word, limit);
+		reply = chatBot.reply(message);
+		
+		replyTypes = new ArrayList<ReplyType>();
+		replyTypes.add(ReplyType.show);
 	}
 	
 	@Test
 	void replyRightGuess() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		chatBot.game = new GibbetGame("gibbet", 5);
-		var reply = chatBot.reply("b");
-		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.rightGuess));
-		assertEquals(reply.guessedWord, chatBot.game.showWord());
+		createReplyForGuess("gibbet", 5, "b");
+		checkReply(reply, chatBot.game.showWord(), replyTypes, TurnResult.rightGuess);
 	}
 	
 	@Test
 	void replyWrongGuess() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		chatBot.game = new GibbetGame("gibbet", 5);
-		var reply = chatBot.reply("s");
-		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.wrongGuess));
-		assertEquals(reply.guessedWord, chatBot.game.showWord());
+		createReplyForGuess("gibbet", 5, "s");
+		checkReply(reply, chatBot.game.showWord(), replyTypes, TurnResult.wrongGuess);
 	}
 	
 	@Test
 	void replyStrangeGuess() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		chatBot.game = new GibbetGame("gibbet", 5);
-		var reply = chatBot.reply("!");
+		createReplyForGuess("gibbet", 5, "!");
+		replyTypes.remove(ReplyType.show);
+		replyTypes.add(ReplyType.strangeGuess);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.strangeGuess));
-		assertEquals(reply.guessedWord, chatBot.game.showWord());
+		checkReply(reply, chatBot.game.showWord(), replyTypes, null);
 	}
 	
 	@Test
 	void replyLoss() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		chatBot.game = new GibbetGame("cat", 2);
-		chatBot.reply("b");
-		var reply = chatBot.reply("d");
+		createReplyForGuess("cat", 2, "b");
+		reply = chatBot.reply("d");
+		replyTypes.add(ReplyType.loss);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.loss));
-		assertEquals(reply.guessedWord, "cat");
+		checkReply(reply, "cat", replyTypes, TurnResult.wrongGuess);
 	}
-	
+
 	@Test
 	void replyWin() {
-		var chatBot = new ChatBot(new GibbetGameFactory(new Random()));
-		chatBot.game = new GibbetGame("cat", 5);
-		chatBot.reply("a");
+		createReplyForGuess("cat", 5, "a");
 		chatBot.reply("t");
-		var reply = chatBot.reply("c");
+		reply = chatBot.reply("c");
+		replyTypes.add(ReplyType.win);
 		
-		assertTrue(reply.gameStates.contains(GibbetGame.gameState.win));
-		assertEquals(reply.guessedWord, "cat");
+		checkReply(reply, "cat", replyTypes, TurnResult.rightGuess);
 	}
 }

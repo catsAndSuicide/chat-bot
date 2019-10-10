@@ -8,17 +8,9 @@ public class GibbetGame {
 	private int wrongGuesses;
 	private int guessLimit;
 	
-	public enum gameState {
+	public enum TurnResult {
 		wrongGuess,
 		rightGuess,
-		repeatedGuess,
-		loss, 
-		win,
-		help,
-		start,
-		end,
-		showWord,
-		strangeGuess
 	}
 	
 	public GibbetGame(String word, int limit){
@@ -65,15 +57,11 @@ public class GibbetGame {
 		return wrongGuesses == guessLimit;
 	}
 	
-	public gameState checkLetter(char letter) {
-		if (letterIsInGuessedLetters(letter))
-			
-			return gameState.repeatedGuess;
-		
+	public TurnResult receiveLetter(char letter) {
 		if (letterIsInWord(letter))
-			return gameState.rightGuess;
-		
+			return TurnResult.rightGuess;
+	
 		wrongGuesses++;
-		return gameState.wrongGuess;
+		return TurnResult.wrongGuess;
 	}
 }

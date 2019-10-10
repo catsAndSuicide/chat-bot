@@ -1,13 +1,18 @@
 package chatbot;
 
 import java.util.ArrayList;
+
+import chatbot.ChatBot.ReplyType;
+import chatbot.GibbetGame.TurnResult;
  
 public class BotReply {
 	public String guessedWord;
-	public ArrayList<GibbetGame.gameState> gameStates;
+	public ArrayList<ReplyType> replyTypes;
+	public TurnResult turnResult;
 	
-	BotReply(String guessedWord, ArrayList<GibbetGame.gameState> gameStates) {
+	BotReply(String guessedWord, ArrayList<ReplyType> replyTypes, TurnResult turnResult) {
 		this.guessedWord = guessedWord;
-		this.gameStates = gameStates;
+		this.replyTypes = replyTypes;
+		this.turnResult = turnResult;
 	}
 }

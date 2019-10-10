@@ -12,64 +12,79 @@ public class ChatBot {
 		this.gameFactory = gameFactory;
 	}
 
-	private GibbetGame.gameState checkWinOrLoss() {
+	private ReplyType checkWinOrLoss() {
 		if (game.isWin())
-			return GibbetGame.gameState.win;
+			return ReplyType.win;
 		if (game.isLoss())
-			return GibbetGame.gameState.loss;
+			return ReplyType.loss;
 		return null;
 	}
 	
+	public enum ReplyType {
+		start,
+		end, 
+		win,
+		loss,
+		help,
+		show,
+		repeatedGuess,
+		strangeGuess
+	}
+	
 	public BotReply reply(String message){
-		var states = new ArrayList<GibbetGame.gameState>();
+		var types = new ArrayList<ReplyType>();
 		
 		switch (message) {
 			case "/start":
 				game = gameFactory.createNew();
-				states.add(GibbetGame.gameState.start);
-				states.add(GibbetGame.gameState.showWord);
-				return new BotReply(game.showWord(), states);
+				types.add(ReplyType.start);
+				types.add(ReplyType.show);
+				return new BotReply(game.showWord(), types, null);
 				
 			case "/help":
-				states.add(GibbetGame.gameState.help);
-				return new BotReply("", states);
+				types.add(ReplyType.help);
+				return new BotReply("", types, null);
 				
 			case "/end":
 				game = null;
-				states.add(GibbetGame.gameState.end);
-				return new BotReply("", states);
+				types.add(ReplyType.end);
+				return new BotReply("", types, null);
 				
 			case "/show":
 				if (game != null) {
-					states.add(GibbetGame.gameState.showWord);
-					return new BotReply(game.showWord(), states);
+					types.add(ReplyType.show);
+					return new BotReply(game.showWord(), types, null);
 				}
-				states.add(GibbetGame.gameState.help);
-				return new BotReply("", states);
+				types.add(ReplyType.help);
+				return new BotReply("", types, null);
 				
 			default:
 				if (game != null) {
 					if (message.matches("[A-Za-z]{1}"))
 					{
-						var answer = game.checkLetter(Character.toLowerCase(message.charAt(0)));
-						states.add(answer);
-						states.add(GibbetGame.gameState.showWord);
-						
-						var winOrLoss = checkWinOrLoss();
-						if (winOrLoss != null) {
-							var hiddenWord = game.showHiddenWord();
-							game = null;
-							states.add(winOrLoss);
-							return new BotReply(hiddenWord, states);
+						var letter = Character.toLowerCase(message.charAt(0));
+						if (game.letterIsInGuessedLetters(letter))
+							types.add(ReplyType.repeatedGuess);
+						else {
+							var answer = game.receiveLetter(letter);
+							types.add(ReplyType.show);
+							
+							var winOrLoss = checkWinOrLoss();
+							if (winOrLoss != null) {
+								var hiddenWord = game.showHiddenWord();
+								game = null;
+								types.add(winOrLoss);
+								return new BotReply(hiddenWord, types, answer);
+							}
+							return new BotReply(game.showWord(), types, answer);
 						}
-						
-						return new BotReply(game.showWord(), states);
+						return new BotReply(game.showWord(), types, null);
 					}
-					states.add(GibbetGame.gameState.strangeGuess);
-					return new BotReply(game.showWord(), states);
+					types.add(ReplyType.strangeGuess);
+					return new BotReply(game.showWord(), types, null);
 				}
-				states.add(GibbetGame.gameState.help);
-				return new BotReply("", states);
+				types.add(ReplyType.help);
+				return new BotReply("", types, null);
 		}
 	}
 }

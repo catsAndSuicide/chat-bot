@@ -13,11 +13,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TelegramBot extends TelegramLongPollingBot{
 	
 	private HashMap<String, ChatBot> chatBots;
-	private BotMessage botMessage;
+	private BotMessageMaker botMessage;
 	
 	public TelegramBot() {
 		chatBots = new HashMap<String, ChatBot>();
-		botMessage = new BotMessage();
+		botMessage = new BotMessageMaker();
 	}
 
 	public static void main(String[] args) {
