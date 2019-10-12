@@ -2,13 +2,17 @@ package chatbot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 public class TelegramBot extends TelegramLongPollingBot{
 	
@@ -33,9 +37,19 @@ public class TelegramBot extends TelegramLongPollingBot{
 
 	@Override
 	public void onUpdateReceived(Update update) {
-		var message = update.getMessage().getText();
-		var id = update.getMessage().getChatId().toString();
+		var message = "";
+		var id = "";
 		var answer = "";
+		
+		if (update.hasMessage() && update.getMessage().hasText()){
+			message = update.getMessage().getText();
+			id = update.getMessage().getChatId().toString();
+		}
+		
+		else if (update.hasCallbackQuery()) {
+			message = update.getCallbackQuery().getData();
+			id = update.getCallbackQuery().getMessage().getChatId().toString();
+		}
 		
 		synchronized(chatBots) {
 			if (!chatBots.containsKey(id)) {
@@ -48,10 +62,27 @@ public class TelegramBot extends TelegramLongPollingBot{
 
 	private void sendMsg(String chatId, String answer) {
 		SendMessage sendMessage = new SendMessage();
-        sendMessage.enableMarkdown(true);
-        sendMessage.setChatId(chatId);
+		sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
+        //sendMessage.enableMarkdown(true);
         
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+        
+        keyboardButtonsRow.add(new InlineKeyboardButton().setText("start") 
+                .setCallbackData("/start"));
+        keyboardButtonsRow.add(new InlineKeyboardButton().setText("show") 
+                .setCallbackData("/show"));
+        keyboardButtonsRow.add(new InlineKeyboardButton().setText("help") 
+                .setCallbackData("/help"));
+        keyboardButtonsRow.add(new InlineKeyboardButton().setText("end") 
+                .setCallbackData("/end"));
+        
+        List<List<InlineKeyboardButton>> rowList= new ArrayList<>();
+        rowList.add(keyboardButtonsRow);
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
