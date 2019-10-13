@@ -93,11 +93,13 @@ class GibbetGameTest {
 	private void checkReply(BotReply reply,
 							String guessedWord,
 							ArrayList<ReplyType> replyTypes, 
-							TurnResult turnResult) {
+							TurnResult turnResult,
+							int wrongGuesses) {
 
 		assertEquals(reply.guessedWord, guessedWord);
 		assertEquals(reply.replyTypes, replyTypes);
 		assertEquals(reply.turnResult, turnResult);
+		assertEquals(reply.wrongGuesses, wrongGuesses);
 	}
 
 	@Test
@@ -105,7 +107,7 @@ class GibbetGameTest {
 		createReply("/help");
 		replyTypes.add(ReplyType.help);
 		
-		checkReply(reply, "", replyTypes, null);
+		checkReply(reply, "", replyTypes, null, 0);
 	}
 	
 	@Test
@@ -114,7 +116,7 @@ class GibbetGameTest {
 		replyTypes.add(ReplyType.start);
 		replyTypes.add(ReplyType.show);
 		
-		checkReply(reply, chatBot.game.showWord(), replyTypes, null);
+		checkReply(reply, chatBot.game.showWord(), replyTypes, null, 0);
 	}
 	
 	@Test
@@ -122,7 +124,7 @@ class GibbetGameTest {
 		createReply("/show");
 		replyTypes.add(ReplyType.help);
 		
-		checkReply(reply, "", replyTypes, null);
+		checkReply(reply, "", replyTypes, null, 0);
 	}
 	
 	@Test
@@ -131,7 +133,7 @@ class GibbetGameTest {
 		reply = chatBot.reply("/show");
 		replyTypes.add(ReplyType.show);
 		
-		checkReply(reply, chatBot.game.showWord(), replyTypes, null);
+		checkReply(reply, chatBot.game.showWord(), replyTypes, null, 0);
 	}
 	
 	@Test
@@ -139,7 +141,7 @@ class GibbetGameTest {
 		createReply("/end");
 		replyTypes.add(ReplyType.end);
 		
-		checkReply(reply, "", replyTypes, null);
+		checkReply(reply, "", replyTypes, null, 0);
 	}
 	
 	private void createReplyForGuess(String word, int limit, String message) {
@@ -154,13 +156,13 @@ class GibbetGameTest {
 	@Test
 	void replyRightGuess() {
 		createReplyForGuess("gibbet", 5, "b");
-		checkReply(reply, chatBot.game.showWord(), replyTypes, TurnResult.rightGuess);
+		checkReply(reply, chatBot.game.showWord(), replyTypes, TurnResult.rightGuess, 0);
 	}
 	
 	@Test
 	void replyWrongGuess() {
 		createReplyForGuess("gibbet", 5, "s");
-		checkReply(reply, chatBot.game.showWord(), replyTypes, TurnResult.wrongGuess);
+		checkReply(reply, chatBot.game.showWord(), replyTypes, TurnResult.wrongGuess, 1);
 	}
 	
 	@Test
@@ -169,7 +171,7 @@ class GibbetGameTest {
 		replyTypes.remove(ReplyType.show);
 		replyTypes.add(ReplyType.strangeGuess);
 		
-		checkReply(reply, chatBot.game.showWord(), replyTypes, null);
+		checkReply(reply, chatBot.game.showWord(), replyTypes, null, 0);
 	}
 	
 	@Test
@@ -177,8 +179,7 @@ class GibbetGameTest {
 		createReplyForGuess("cat", 2, "b");
 		reply = chatBot.reply("d");
 		replyTypes.add(ReplyType.loss);
-		
-		checkReply(reply, "cat", replyTypes, TurnResult.wrongGuess);
+		checkReply(reply, "cat", replyTypes, TurnResult.wrongGuess, 2);
 	}
 
 	@Test
@@ -188,6 +189,6 @@ class GibbetGameTest {
 		reply = chatBot.reply("c");
 		replyTypes.add(ReplyType.win);
 		
-		checkReply(reply, "cat", replyTypes, TurnResult.rightGuess);
+		checkReply(reply, "cat", replyTypes, TurnResult.rightGuess, 0);
 	}
 }

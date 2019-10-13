@@ -69,6 +69,7 @@ public class ChatBot {
 							types.add(ReplyType.repeatedGuess);
 						else {
 							var answer = game.receiveLetter(letter);
+							wrongGuesses = game.getWrongGuesses();
 							types.add(ReplyType.show);
 							
 							var winOrLoss = checkWinOrLoss();
@@ -76,11 +77,11 @@ public class ChatBot {
 								var hiddenWord = game.showHiddenWord();
 								game = null;
 								types.add(winOrLoss);
-								return new BotReply(hiddenWord, types, answer, game.getWrongGuesses());
+								return new BotReply(hiddenWord, types, answer, wrongGuesses);
 							}
-							return new BotReply(game.showWord(), types, answer, game.getWrongGuesses());
+							return new BotReply(game.showWord(), types, answer, wrongGuesses);
 						}
-						return new BotReply(game.showWord(), types, null, game.getWrongGuesses());
+						return new BotReply(game.showWord(), types, null, wrongGuesses);
 					}
 					types.add(ReplyType.strangeGuess);
 					return new BotReply(game.showWord(), types, null, wrongGuesses);

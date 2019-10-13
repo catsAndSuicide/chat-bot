@@ -10,6 +10,7 @@ public class TelegramBotMessageMaker {
 		
 		if (reply.turnResult != null) {
 			photoName = Integer.toString(reply.wrongGuesses + 1) + ".jpg";
+			
 			if (reply.turnResult == TurnResult.rightGuess)
 				text += "You are right!";
 			else if (reply.turnResult == TurnResult.wrongGuess)
