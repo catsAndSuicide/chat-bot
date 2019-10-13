@@ -33,30 +33,32 @@ public class ChatBot {
 	
 	public BotReply reply(String message){
 		var types = new ArrayList<ReplyType>();
+		var wrongGuesses = 0;
 		
 		switch (message) {
 			case "/start":
 				game = gameFactory.createNew();
 				types.add(ReplyType.start);
 				types.add(ReplyType.show);
-				return new BotReply(game.showWord(), types, null);
+				wrongGuesses = game.getWrongGuesses();
+				return new BotReply(game.showWord(), types, null, wrongGuesses);
 				
 			case "/help":
 				types.add(ReplyType.help);
-				return new BotReply("", types, null);
+				return new BotReply("", types, null, wrongGuesses);
 				
 			case "/end":
 				game = null;
 				types.add(ReplyType.end);
-				return new BotReply("", types, null);
+				return new BotReply("", types, null, wrongGuesses);
 				
 			case "/show":
 				if (game != null) {
 					types.add(ReplyType.show);
-					return new BotReply(game.showWord(), types, null);
+					return new BotReply(game.showWord(), types, null, wrongGuesses);
 				}
 				types.add(ReplyType.help);
-				return new BotReply("", types, null);
+				return new BotReply("", types, null, wrongGuesses);
 				
 			default:
 				if (game != null) {
@@ -74,17 +76,17 @@ public class ChatBot {
 								var hiddenWord = game.showHiddenWord();
 								game = null;
 								types.add(winOrLoss);
-								return new BotReply(hiddenWord, types, answer);
+								return new BotReply(hiddenWord, types, answer, game.getWrongGuesses());
 							}
-							return new BotReply(game.showWord(), types, answer);
+							return new BotReply(game.showWord(), types, answer, game.getWrongGuesses());
 						}
-						return new BotReply(game.showWord(), types, null);
+						return new BotReply(game.showWord(), types, null, game.getWrongGuesses());
 					}
 					types.add(ReplyType.strangeGuess);
-					return new BotReply(game.showWord(), types, null);
+					return new BotReply(game.showWord(), types, null, wrongGuesses);
 				}
 				types.add(ReplyType.help);
-				return new BotReply("", types, null);
+				return new BotReply("", types, null, wrongGuesses);
 		}
 	}
 }

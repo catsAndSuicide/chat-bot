@@ -20,6 +20,10 @@ public class GibbetGame {
 		wrongGuesses = 0;
 		guessLimit = limit;
 	}
+	
+	public int getWrongGuesses() {
+		return wrongGuesses;
+	}
 
 	public String showWord() {
 		return String.valueOf(guessedLetters);

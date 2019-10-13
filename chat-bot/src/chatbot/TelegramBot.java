@@ -2,6 +2,7 @@ package chatbot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -17,11 +19,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 public class TelegramBot extends TelegramLongPollingBot{
 	
 	private HashMap<String, ChatBot> chatBots;
-	private BotMessageMaker botMessage;
+	private TelegramBotMessageMaker botMessage;
 	
 	public TelegramBot() {
 		chatBots = new HashMap<String, ChatBot>();
-		botMessage = new BotMessageMaker();
+		botMessage = new TelegramBotMessageMaker();
 	}
 
 	public static void main(String[] args) {
@@ -39,7 +41,7 @@ public class TelegramBot extends TelegramLongPollingBot{
 	public void onUpdateReceived(Update update) {
 		var message = "";
 		var id = "";
-		var answer = "";
+		TelegramBotMessage answer = null;
 		
 		if (update.hasMessage() && update.getMessage().hasText()){
 			message = update.getMessage().getText();
@@ -57,7 +59,21 @@ public class TelegramBot extends TelegramLongPollingBot{
 			}
 			answer = botMessage.getMessage(chatBots.get(id).reply(message));
 		}
-		sendMsg(id, answer);
+		sendMsg(id, answer.text);
+		if (answer.photoName != null)
+			sendPht(id, answer.photoName);
+	}
+	
+	private void sendPht(String chatId, String photoName) {
+		SendPhoto sendPhoto = new SendPhoto();
+		sendPhoto.setChatId(chatId);
+		sendPhoto.setPhoto(new File(System.getProperty("user.dir") , photoName));
+		
+		try {
+            execute(sendPhoto);
+        } catch (TelegramApiException e) {
+        	e.printStackTrace();
+        }
 	}
 
 	private void sendMsg(String chatId, String answer) {

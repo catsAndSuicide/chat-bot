@@ -11,7 +11,7 @@ public class GibbetGameFactory {
 	}
 	
 	public GibbetGame createNew() {
-		return new GibbetGame(chooseWord(), 5);
+		return new GibbetGame(chooseWord(), 7);
 	}
 
 	private String chooseWord() {
