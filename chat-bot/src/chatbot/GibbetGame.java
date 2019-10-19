@@ -16,7 +16,7 @@ public class GibbetGame {
 	public GibbetGame(String word, int limit){
 		hiddenWord = word;
 		guessedLetters = new char[hiddenWord.length()];
-		Arrays.fill(guessedLetters, '.');
+		Arrays.fill(guessedLetters, '*');
 		wrongGuesses = 0;
 		guessLimit = limit;
 	}
