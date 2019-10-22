@@ -26,6 +26,7 @@ public class BotMessageMaker {
 				case help:
 					text += "This is a Gibbet-game bot.\n"
 							+ "/start - to start a new game.\n"
+							+ "/restart - to restart a game"
 							+ "/end - to end the current game.\n"
 							+ "/show - to show the word, which you guess.\n"
 							+ "/help - to see this message.\n";
@@ -47,6 +48,15 @@ public class BotMessageMaker {
 					break;
 				case show:
 					text += reply.guessedWord;
+					break;
+				case restartNotStartedGame:
+					text += "You do not start game.";
+					break;
+				case startStartedGame:
+					text += "You already start game.";
+					break;
+				case endNotStartedGame:
+					text += "You should start game to end it.";
 					break;
 				default:
 					text += "I don't understand!";

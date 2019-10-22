@@ -1,15 +1,20 @@
 package chatbot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ChatBot {
 
 	private GibbetGameFactory gameFactory;
 	protected GibbetGame game;
+	protected HashMap<String, String> availableOperations;
 	
 	public ChatBot(GibbetGameFactory gameFactory) {
 		super();
 		this.gameFactory = gameFactory;
+		this.availableOperations = new HashMap<String, String>();
+		this.availableOperations.put("/start", "start");
+		this.availableOperations.put("/help", "help");
 	}
 
 	private ReplyType checkWinOrLoss() {
@@ -20,6 +25,22 @@ public class ChatBot {
 		return null;
 	}
 	
+	private void startGame() {
+		game = gameFactory.createNew();
+		this.availableOperations.remove("/start");
+		this.availableOperations.put("/restart", "restart");
+		this.availableOperations.put("/end", "end");
+		this.availableOperations.put("/show", "show");
+	}
+	
+	private void endGame() {
+		game = null;
+		this.availableOperations.put("/start", "start");
+		this.availableOperations.remove("/restart");
+		this.availableOperations.remove("/end");	
+		this.availableOperations.remove("/show");
+	}
+	
 	public enum ReplyType {
 		start,
 		end, 
@@ -28,7 +49,10 @@ public class ChatBot {
 		help,
 		show,
 		repeatedGuess,
-		strangeGuess
+		strangeGuess,
+		restartNotStartedGame,
+		startStartedGame,
+		endNotStartedGame
 	}
 	
 	public BotReply reply(String message){
@@ -36,8 +60,25 @@ public class ChatBot {
 		var wrongGuesses = 0;
 		
 		switch (message) {
+			case "/restart":
+				if (!this.availableOperations.containsKey(message)) {
+					types.add(ReplyType.restartNotStartedGame);
+					types.add(ReplyType.help);
+					return new BotReply(null, types, null, wrongGuesses);
+				}
+				startGame();
+				types.add(ReplyType.start);
+				types.add(ReplyType.show);
+				wrongGuesses = game.getWrongGuesses();
+				return new BotReply(game.showWord(), types, null, wrongGuesses);
+				
 			case "/start":
-				game = gameFactory.createNew();
+				if (!this.availableOperations.containsKey(message)) {
+					types.add(ReplyType.startStartedGame);
+					types.add(ReplyType.help);
+					return new BotReply(null, types, null, wrongGuesses);
+				}
+				startGame();
 				types.add(ReplyType.start);
 				types.add(ReplyType.show);
 				wrongGuesses = game.getWrongGuesses();
@@ -48,7 +89,12 @@ public class ChatBot {
 				return new BotReply("", types, null, wrongGuesses);
 				
 			case "/end":
-				game = null;
+				if (!this.availableOperations.containsKey(message)) {
+					types.add(ReplyType.endNotStartedGame);
+					types.add(ReplyType.help);
+					return new BotReply(null, types, null, wrongGuesses);
+				}
+				endGame();
 				types.add(ReplyType.end);
 				return new BotReply("", types, null, wrongGuesses);
 				

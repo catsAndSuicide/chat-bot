@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -43,6 +45,7 @@ public class TelegramBot extends TelegramLongPollingBot{
 		var message = "";
 		var id = "";
 		BotMessage answer = null;
+		HashMap<String, String> availableOperations = null;
 		try {
 			if (update.hasMessage() && update.getMessage().hasText()){
 				message = update.getMessage().getText();
@@ -58,11 +61,13 @@ public class TelegramBot extends TelegramLongPollingBot{
 				if (!chatBots.containsKey(id)) {
 					chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random())));
 				}
-				answer = botMessage.getMessage(chatBots.get(id).reply(message));
+				var chatBot = chatBots.get(id);
+				answer = botMessage.getMessage(chatBot.reply(message));
+				availableOperations = chatBot.availableOperations;
 			}
 			if (answer.photoName != null)
 				sendPhoto(id, answer.photoName);
-			sendMsg(id, answer.text);
+			sendMsg(id, answer.text, availableOperations);
 		}
 		catch (TelegramApiException e) {
 			e.printStackTrace();
@@ -77,26 +82,28 @@ public class TelegramBot extends TelegramLongPollingBot{
 		execute(sendPhoto);
 	}
 
-	private void sendMsg(String chatId, String answer) throws TelegramApiException {
+	private void sendMsg(String chatId, String answer, HashMap<String, String> availableOperations) throws TelegramApiException {
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
         sendMessage.enableHtml(true);
         
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
-        
-        keyboardButtonsRow.add(new InlineKeyboardButton().setText("start") 
-                .setCallbackData("/start"));
-        keyboardButtonsRow.add(new InlineKeyboardButton().setText("show") 
-                .setCallbackData("/show"));
-        keyboardButtonsRow.add(new InlineKeyboardButton().setText("help") 
-                .setCallbackData("/help"));
-        keyboardButtonsRow.add(new InlineKeyboardButton().setText("end") 
-                .setCallbackData("/end"));
-        
         List<List<InlineKeyboardButton>> rowList= new ArrayList<>();
-        rowList.add(keyboardButtonsRow);
+        List<InlineKeyboardButton> keyboardButtonsRow = null;
+        var i = 0;
+        for (Map.Entry<String, String> entry : availableOperations.entrySet()) {
+        	if (i % 4 == 0) {
+        		if (keyboardButtonsRow != null)
+        			rowList.add(keyboardButtonsRow);
+        		keyboardButtonsRow = new ArrayList<>();
+        	}
+        	keyboardButtonsRow.add(new InlineKeyboardButton().setText((String) entry.getValue()) 
+                    .setCallbackData((String) entry.getKey()));
+        	i++;
+        }
+        if (keyboardButtonsRow.size() != 0)
+        	rowList.add(keyboardButtonsRow);
         inlineKeyboardMarkup.setKeyboard(rowList);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
 
