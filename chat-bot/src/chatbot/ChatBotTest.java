@@ -57,9 +57,10 @@ public class ChatBotTest {
 	
 	@Test
 	void replyEnd() {
+		chatBot.game = new GibbetGame("gibbet", 5);
 		var reply = chatBot.reply("/end");
 		checkReply(reply, "", 
-				new ReplyType[] {ReplyType.end}, null, 0);
+				new ReplyType[] {ReplyType.endNotStartedGame, ReplyType.help}, null, 0);
 	}
 	
 	@Test

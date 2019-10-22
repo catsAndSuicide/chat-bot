@@ -50,8 +50,6 @@ public class ChatBot {
 		show,
 		repeatedGuess,
 		strangeGuess,
-		restartNotStartedGame,
-		startStartedGame,
 		endNotStartedGame
 	}
 	
@@ -60,24 +58,8 @@ public class ChatBot {
 		var wrongGuesses = 0;
 		
 		switch (message) {
-			case "/restart":
-				if (!this.availableOperations.containsKey(message)) {
-					types.add(ReplyType.restartNotStartedGame);
-					types.add(ReplyType.help);
-					return new BotReply(null, types, null, wrongGuesses);
-				}
-				startGame();
-				types.add(ReplyType.start);
-				types.add(ReplyType.show);
-				wrongGuesses = game.getWrongGuesses();
-				return new BotReply(game.showWord(), types, null, wrongGuesses);
-				
 			case "/start":
-				if (!this.availableOperations.containsKey(message)) {
-					types.add(ReplyType.startStartedGame);
-					types.add(ReplyType.help);
-					return new BotReply(null, types, null, wrongGuesses);
-				}
+			case "/restart":
 				startGame();
 				types.add(ReplyType.start);
 				types.add(ReplyType.show);
@@ -92,7 +74,7 @@ public class ChatBot {
 				if (!this.availableOperations.containsKey(message)) {
 					types.add(ReplyType.endNotStartedGame);
 					types.add(ReplyType.help);
-					return new BotReply(null, types, null, wrongGuesses);
+					return new BotReply("", types, null, wrongGuesses);
 				}
 				endGame();
 				types.add(ReplyType.end);
@@ -121,7 +103,7 @@ public class ChatBot {
 							var winOrLoss = checkWinOrLoss();
 							if (winOrLoss != null) {
 								var hiddenWord = game.showHiddenWord();
-								game = null;
+								endGame();
 								types.add(winOrLoss);
 								return new BotReply(hiddenWord, types, answer, wrongGuesses);
 							}

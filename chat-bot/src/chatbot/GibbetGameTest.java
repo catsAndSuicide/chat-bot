@@ -10,14 +10,14 @@ class GibbetGameTest {
 	@Test
 	void showEmptyWord() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.showWord(), "......");
+		assertEquals(gibbetGame.showWord(), "******");
 	}
 	
 	@Test
 	void showWordWithGuessedLetters() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
 		gibbetGame.letterIsInWord('b');
-		assertEquals(gibbetGame.showWord(), "..bb..");
+		assertEquals(gibbetGame.showWord(), "**bb**");
 	}
 	
 	@Test
