@@ -9,6 +9,26 @@ public class BotMessageMaker {
 	public BotMessage getMessage(BotReply reply) {
 		var text = "";
 		String photoName = null;
+		var availableOperations = new HashMap<String, String>();
+		
+		for (String operation : reply.availableOperations) 
+			switch(operation) {
+				case "start":
+					availableOperations.put("/start", "start");
+					break;
+				case "restart":
+					availableOperations.put("/start", "restart");
+					break;
+				case "end":
+					availableOperations.put("/end", "end");
+					break;
+				case "show":
+					availableOperations.put("/show", "show");
+					break;
+				case "help":
+					availableOperations.put("/help", "help");
+					break;
+			}
 		
 		if (reply.turnResult != null) {
 			photoName = Integer.toString(reply.wrongGuesses + 1) + ".jpg";
@@ -59,6 +79,6 @@ public class BotMessageMaker {
 			if (i != reply.replyTypes.size() - 1)
 				text += "\n";
 		}
-		return new BotMessage(text, photoName);
+		return new BotMessage(text, photoName, availableOperations);
 	}
 }

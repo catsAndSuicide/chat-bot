@@ -1,6 +1,6 @@
 package chatbot;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Random;
@@ -20,8 +20,10 @@ public class ChatBotTest {
 							TurnResult turnResult,
 							int wrongGuesses) {
 
+		for (ReplyType type : replyTypes)
+			assertTrue(reply.replyTypes.contains(type));
+		
 		assertEquals(reply.guessedWord, guessedWord);
-		assertArrayEquals(reply.replyTypes.toArray(), replyTypes);
 		assertEquals(reply.turnResult, turnResult);
 		assertEquals(reply.wrongGuesses, wrongGuesses);
 	}

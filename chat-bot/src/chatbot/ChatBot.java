@@ -1,20 +1,15 @@
 package chatbot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ChatBot {
 
 	private GibbetGameFactory gameFactory;
 	protected GibbetGame game;
-	protected HashMap<String, String> availableOperations;
 	
 	public ChatBot(GibbetGameFactory gameFactory) {
 		super();
 		this.gameFactory = gameFactory;
-		this.availableOperations = new HashMap<String, String>();
-		this.availableOperations.put("/start", "start");
-		this.availableOperations.put("/help", "help");
 	}
 
 	private ReplyType checkWinOrLoss() {
@@ -25,20 +20,10 @@ public class ChatBot {
 		return null;
 	}
 	
-	private void startGame() {
-		game = gameFactory.createNew();
-		this.availableOperations.remove("/start");
-		this.availableOperations.put("/restart", "restart");
-		this.availableOperations.put("/end", "end");
-		this.availableOperations.put("/show", "show");
-	}
-	
-	private void endGame() {
-		game = null;
-		this.availableOperations.put("/start", "start");
-		this.availableOperations.remove("/restart");
-		this.availableOperations.remove("/end");	
-		this.availableOperations.remove("/show");
+	private String[] getGameCommands() {
+		if (game == null)
+			return new String[] {"start", "help"};
+		return new String[] {"restart", "help", "end", "show"};
 	}
 	
 	public enum ReplyType {
@@ -56,37 +41,40 @@ public class ChatBot {
 	public BotReply reply(String message){
 		var types = new ArrayList<ReplyType>();
 		var wrongGuesses = 0;
+		var hiddenWord = "";
 		
 		switch (message) {
 			case "/start":
 			case "/restart":
-				startGame();
+				game = gameFactory.createNew();
 				types.add(ReplyType.start);
 				types.add(ReplyType.show);
 				wrongGuesses = game.getWrongGuesses();
-				return new BotReply(game.showWord(), types, null, wrongGuesses);
+				return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
 				
 			case "/help":
 				types.add(ReplyType.help);
-				return new BotReply("", types, null, wrongGuesses);
+				return new BotReply("", types, null, wrongGuesses, getGameCommands());
 				
 			case "/end":
-				if (!this.availableOperations.containsKey(message)) {
+				if (game == null) {
 					types.add(ReplyType.endNotStartedGame);
 					types.add(ReplyType.help);
-					return new BotReply("", types, null, wrongGuesses);
+					return new BotReply("", types, null, wrongGuesses, getGameCommands());
 				}
-				endGame();
+				hiddenWord = game.showHiddenWord();
+				game = null;
+				types.add(ReplyType.show);
 				types.add(ReplyType.end);
-				return new BotReply("", types, null, wrongGuesses);
+				return new BotReply(hiddenWord, types, null, wrongGuesses, getGameCommands());
 				
 			case "/show":
 				if (game != null) {
 					types.add(ReplyType.show);
-					return new BotReply(game.showWord(), types, null, wrongGuesses);
+					return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
 				}
 				types.add(ReplyType.help);
-				return new BotReply("", types, null, wrongGuesses);
+				return new BotReply("", types, null, wrongGuesses, getGameCommands());
 				
 			default:
 				if (game != null) {
@@ -102,20 +90,20 @@ public class ChatBot {
 							
 							var winOrLoss = checkWinOrLoss();
 							if (winOrLoss != null) {
-								var hiddenWord = game.showHiddenWord();
-								endGame();
+								hiddenWord = game.showHiddenWord();
+								game = null;
 								types.add(winOrLoss);
-								return new BotReply(hiddenWord, types, answer, wrongGuesses);
+								return new BotReply(hiddenWord, types, answer, wrongGuesses, getGameCommands());
 							}
-							return new BotReply(game.showWord(), types, answer, wrongGuesses);
+							return new BotReply(game.showWord(), types, answer, wrongGuesses, getGameCommands());
 						}
-						return new BotReply(game.showWord(), types, null, wrongGuesses);
+						return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
 					}
 					types.add(ReplyType.strangeGuess);
-					return new BotReply(game.showWord(), types, null, wrongGuesses);
+					return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
 				}
 				types.add(ReplyType.help);
-				return new BotReply("", types, null, wrongGuesses);
+				return new BotReply("", types, null, wrongGuesses, getGameCommands());
 		}
 	}
 }

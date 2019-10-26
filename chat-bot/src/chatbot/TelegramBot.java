@@ -3,12 +3,10 @@ package chatbot;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -16,6 +14,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -29,15 +28,10 @@ public class TelegramBot extends TelegramLongPollingBot{
 		botMessage = new BotMessageMaker();
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws TelegramApiRequestException {
 		ApiContextInitializer.init();
 		TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-
-		try {
-			telegramBotsApi.registerBot(new TelegramBot());
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-		}
+		telegramBotsApi.registerBot(new TelegramBot());
 	}
 
 	@Override
@@ -63,21 +57,21 @@ public class TelegramBot extends TelegramLongPollingBot{
 				}
 				var chatBot = chatBots.get(id);
 				answer = botMessage.getMessage(chatBot.reply(message));
-				availableOperations = chatBot.availableOperations;
+				availableOperations = answer.availableOperations;
 			}
 			if (answer.photoName != null)
 				sendPhoto(id, answer.photoName);
 			sendMsg(id, answer.text, availableOperations);
 		}
-		catch (TelegramApiException e) {
-			e.printStackTrace();
+		catch (Exception e) {
+			System.out.printf("Error %1$s, id: %2$s, message: %3$s\n", e.toString(), id, message);
 		}
 	}
 	
 	private void sendPhoto(String chatId, String photoName) throws TelegramApiException {
 		SendPhoto sendPhoto = new SendPhoto();
 		sendPhoto.setChatId(chatId);
-		sendPhoto.setPhoto(new File(System.getProperty("user.dir"), photoName));
+		sendPhoto.setPhoto(new File(System.getProperty("user.dir") + File.separator + "pictures", photoName));
 		
 		execute(sendPhoto);
 	}
@@ -92,6 +86,7 @@ public class TelegramBot extends TelegramLongPollingBot{
         List<List<InlineKeyboardButton>> rowList= new ArrayList<>();
         List<InlineKeyboardButton> keyboardButtonsRow = null;
         var i = 0;
+        
         for (Map.Entry<String, String> entry : availableOperations.entrySet()) {
         	if (i % 4 == 0) {
         		if (keyboardButtonsRow != null)
@@ -102,6 +97,7 @@ public class TelegramBot extends TelegramLongPollingBot{
                     .setCallbackData((String) entry.getKey()));
         	i++;
         }
+        
         if (keyboardButtonsRow.size() != 0)
         	rowList.add(keyboardButtonsRow);
         inlineKeyboardMarkup.setKeyboard(rowList);

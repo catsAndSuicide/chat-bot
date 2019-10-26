@@ -10,11 +10,14 @@ public class BotReply {
 	public int wrongGuesses;
 	public ArrayList<ReplyType> replyTypes;
 	public TurnResult turnResult;
+	public String[] availableOperations;
 	
-	BotReply(String guessedWord, ArrayList<ReplyType> replyTypes, TurnResult turnResult, int wrongGuesses) {
+	BotReply(String guessedWord, ArrayList<ReplyType> replyTypes, 
+			TurnResult turnResult, int wrongGuesses, String[] availableOperations) {
 		this.guessedWord = guessedWord;
 		this.replyTypes = replyTypes;
 		this.turnResult = turnResult;
 		this.wrongGuesses = wrongGuesses;
+		this.availableOperations = availableOperations;
 	}
 }
