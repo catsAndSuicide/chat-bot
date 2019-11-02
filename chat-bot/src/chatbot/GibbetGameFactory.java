@@ -1,7 +1,7 @@
 package chatbot;
 import java.util.Random;
 
-public class GibbetGameFactory {
+public class GibbetGameFactory implements GibbetGameCreator {
 	
 	private String[] words = new String[] { "gibbet", "death", "sessions", "pain" };
 	private Random rnd;

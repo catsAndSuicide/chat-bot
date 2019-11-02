@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 public class ChatBot {
 
-	private GibbetGameFactory gameFactory;
-	protected GibbetGame game;
+	private GibbetGameCreator gameFactory;
+	private GibbetGame game;
 	
-	public ChatBot(GibbetGameFactory gameFactory) {
+	public ChatBot(GibbetGameCreator gameFactory) {
 		super();
 		this.gameFactory = gameFactory;
 	}
