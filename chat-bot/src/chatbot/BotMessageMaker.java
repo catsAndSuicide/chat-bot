@@ -1,14 +1,65 @@
 package chatbot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import chatbot.ChatBot.ReplyType;
 import chatbot.GibbetGame.TurnResult;
 
 public class BotMessageMaker {
 	
 	public BotMessage getMessage(BotReply reply) {
-		var text = "";
 		String photoName = null;
+		var textFragments = new ArrayList<String>();
+		
+		if (reply.turnResult != null) {
+			photoName = Integer.toString(reply.wrongGuesses + 1) + ".jpg";
+			textFragments.add(getTurnResultReplyFragment(reply));
+		}
+		for (var i = 0; i < reply.replyTypes.size(); i++) {
+			textFragments.add(getReplyFragment(reply.replyTypes.get(i), reply));
+		}
+		return new BotMessage(String.join("\n", textFragments), photoName, getAvailableOperations(reply));
+	}
+
+	private String getTurnResultReplyFragment(BotReply reply) {
+		if (reply.turnResult == TurnResult.rightGuess)
+			return "You are right!";
+		else if (reply.turnResult == TurnResult.wrongGuess)
+			return "There is no such letter in my word!";
+		else
+			throw new RuntimeException(reply.turnResult.toString());
+	}
+
+	private String getReplyFragment(ReplyType replyType, BotReply reply) {
+		switch(replyType) {
+			case help:
+				return "This is a Gibbet-game bot.\n"
+						+ "/start - to start a new game.\n"
+						+ "/restart - to restart a game.\n"
+						+ "/end - to end the current game.\n"
+						+ "/show - to show the word, which you guess.\n"
+						+ "/help - to see this message.";
+			case start:
+				return "New game started. Guess one letter!";
+			case win:
+				return "You win!";
+			case loss:
+				return "You lose!";
+			case end:
+				return "Game over!";
+			case repeatedGuess:
+				return "You have already guessed this letter!";
+			case show:
+				return reply.guessedWord;
+			case endNotStartedGame:
+				return "You should start game to end it!";
+			default:
+				return "I don't understand!";
+		}
+	}
+
+	private HashMap<String, String> getAvailableOperations(BotReply reply) {
 		var availableOperations = new HashMap<String, String>();
 		
 		for (String operation : reply.availableOperations) 
@@ -29,56 +80,6 @@ public class BotMessageMaker {
 					availableOperations.put("/help", "help");
 					break;
 			}
-		
-		if (reply.turnResult != null) {
-			photoName = Integer.toString(reply.wrongGuesses + 1) + ".jpg";
-			
-			if (reply.turnResult == TurnResult.rightGuess)
-				text += "You are right!";
-			else if (reply.turnResult == TurnResult.wrongGuess)
-				text += "There is no such letter in my word!";
-			if (reply.replyTypes.size() != 0)
-				text += '\n';
-		}
-		
-		for (var i = 0; i < reply.replyTypes.size(); i++) {
-			switch(reply.replyTypes.get(i)) {
-				case help:
-					text += "This is a Gibbet-game bot.\n"
-							+ "/start - to start a new game.\n"
-							+ "/restart - to restart a game.\n"
-							+ "/end - to end the current game.\n"
-							+ "/show - to show the word, which you guess.\n"
-							+ "/help - to see this message.\n";
-					break;
-				case start:
-					text += "New game started. Guess one letter!";
-					break;
-				case win:
-					text += "You win!";
-					break;
-				case loss:
-					text += "You lose!";
-					break;
-				case end:
-					text += "Game over!";
-					break;
-				case repeatedGuess:
-					text += "You have already guessed this letter!";
-					break;
-				case show:
-					text += reply.guessedWord;
-					break;
-				case endNotStartedGame:
-					text += "You should start game to end it!";
-					break;
-				default:
-					text += "I don't understand!";
-					break;
-			}
-			if (i != reply.replyTypes.size() - 1)
-				text += "\n";
-		}
-		return new BotMessage(text, photoName, availableOperations);
+		return availableOperations;
 	}
 }

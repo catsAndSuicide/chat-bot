@@ -14,18 +14,18 @@ public class ChatBotTest {
 	
 	private ChatBot chatBot = new ChatBot(new GibbetGameFactory(new Random()));
 
-	private void checkReply(BotReply reply,
-							String guessedWord,
-							ReplyType[] replyTypes, 
-							TurnResult turnResult,
-							int wrongGuesses) {
+	private void checkReply(BotReply actualReply,
+							String expectedWord,
+							ReplyType[] expectedReplyTypes, 
+							TurnResult expectedTurnResult,
+							int expectedWrongGuesses) {
 
-		for (ReplyType type : replyTypes)
-			assertTrue(reply.replyTypes.contains(type));
+		for (ReplyType type : expectedReplyTypes)
+			assertTrue(type.toString(), actualReply.replyTypes.contains(type));
 		
-		assertEquals(reply.guessedWord, guessedWord);
-		assertEquals(reply.turnResult, turnResult);
-		assertEquals(reply.wrongGuesses, wrongGuesses);
+		assertEquals(expectedWord, actualReply.guessedWord);
+		assertEquals(actualReply.turnResult, expectedTurnResult);
+		assertEquals(actualReply.wrongGuesses, expectedWrongGuesses);
 	}
 
 	@Test
@@ -67,7 +67,7 @@ public class ChatBotTest {
 	
 	@Test
 	void replyRightGuess() {
-		chatBot.game = new GibbetGame("gibbet", 5);
+		chatBot = createChatBot("gibbet", 5);
 		var reply = chatBot.reply("b");
 		
 		checkReply(reply, chatBot.game.showWord(), 

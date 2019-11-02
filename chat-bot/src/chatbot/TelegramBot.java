@@ -76,7 +76,7 @@ public class TelegramBot extends TelegramLongPollingBot{
 		execute(sendPhoto);
 	}
 
-	private void sendMsg(String chatId, String answer, HashMap<String, String> availableOperations) throws TelegramApiException {
+	private void sendMsg(String chatId, String answer, HashMap<String, String> textForOperation) throws TelegramApiException {
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
@@ -87,14 +87,15 @@ public class TelegramBot extends TelegramLongPollingBot{
         List<InlineKeyboardButton> keyboardButtonsRow = null;
         var i = 0;
         
-        for (Map.Entry<String, String> entry : availableOperations.entrySet()) {
+        for (Map.Entry<String, String> operationAndText : textForOperation.entrySet()) {
         	if (i % 4 == 0) {
         		if (keyboardButtonsRow != null)
         			rowList.add(keyboardButtonsRow);
         		keyboardButtonsRow = new ArrayList<>();
         	}
-        	keyboardButtonsRow.add(new InlineKeyboardButton().setText((String) entry.getValue()) 
-                    .setCallbackData((String) entry.getKey()));
+        	keyboardButtonsRow.add(new InlineKeyboardButton()
+        			.setText((String) operationAndText.getValue()) 
+                    .setCallbackData((String) operationAndText.getKey()));
         	i++;
         }
         
