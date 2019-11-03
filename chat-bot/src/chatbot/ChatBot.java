@@ -78,26 +78,34 @@ public class ChatBot {
 				
 			default:
 				if (game != null) {
-					if (message.matches("[A-Za-z]{1}"))
+					if (message.matches("[A-Za-z]{1}") || message.length() == game.showHiddenWord().length())
 					{
-						var letter = Character.toLowerCase(message.charAt(0));
-						if (game.letterIsInGuessedLetters(letter))
-							types.add(ReplyType.repeatedGuess);
+						GibbetGame.TurnResult answer = null;
+						if (message.matches("[A-Za-z]{1}")) {
+							var letter = Character.toLowerCase(message.charAt(0));
+							if (game.letterIsInGuessedLetters(letter)) {
+								types.add(ReplyType.repeatedGuess);
+								return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
+							}
+							else {
+								answer = game.receiveLetter(letter);
+								wrongGuesses = game.getWrongGuesses();
+								types.add(ReplyType.show);
+							}
+						}
 						else {
-							var answer = game.receiveLetter(letter);
+							answer = game.receiveWord(message);
 							wrongGuesses = game.getWrongGuesses();
 							types.add(ReplyType.show);
-							
-							var winOrLoss = checkWinOrLoss();
-							if (winOrLoss != null) {
-								hiddenWord = game.showHiddenWord();
-								game = null;
-								types.add(winOrLoss);
-								return new BotReply(hiddenWord, types, answer, wrongGuesses, getGameCommands());
-							}
-							return new BotReply(game.showWord(), types, answer, wrongGuesses, getGameCommands());
 						}
-						return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
+						var winOrLoss = checkWinOrLoss();
+						if (winOrLoss != null) {
+							hiddenWord = game.showHiddenWord();
+							game = null;
+							types.add(winOrLoss);
+							return new BotReply(hiddenWord, types, answer, wrongGuesses, getGameCommands());
+						}
+						return new BotReply(game.showWord(), types, answer, wrongGuesses, getGameCommands());
 					}
 					types.add(ReplyType.strangeGuess);
 					return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());

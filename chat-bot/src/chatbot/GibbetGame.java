@@ -68,4 +68,14 @@ public class GibbetGame {
 		wrongGuesses++;
 		return TurnResult.wrongGuess;
 	}
+	
+	public TurnResult receiveWord(String word) {
+		if (hiddenWord.equalsIgnoreCase(word)) {
+			guessedLetters = hiddenWord.toCharArray();
+			return TurnResult.rightGuess;
+		}
+	
+		wrongGuesses++;
+		return TurnResult.wrongGuess;
+	}
 }

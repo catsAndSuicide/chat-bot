@@ -26,7 +26,7 @@ public class BotMessageMaker {
 		if (reply.turnResult == TurnResult.rightGuess)
 			return "You are right!";
 		else if (reply.turnResult == TurnResult.wrongGuess)
-			return "There is no such letter in my word!";
+			return "This is wrong guess!";
 		else
 			throw new RuntimeException(reply.turnResult.toString());
 	}
