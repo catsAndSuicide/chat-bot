@@ -26,7 +26,7 @@ public class BotMessageMaker {
 		if (reply.turnResult == TurnResult.rightGuess)
 			return "You are right!";
 		else if (reply.turnResult == TurnResult.wrongGuess)
-			return "This is wrong guess!";
+			return "This is a wrong guess!";
 		else
 			throw new RuntimeException(reply.turnResult.toString());
 	}

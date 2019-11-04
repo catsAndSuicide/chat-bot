@@ -76,7 +76,8 @@ public class TelegramBot extends TelegramLongPollingBot{
 		execute(sendPhoto);
 	}
 
-	private void sendMsg(String chatId, String answer, HashMap<String, String> textForOperation) throws TelegramApiException {
+	private void sendMsg(String chatId, String answer, HashMap<String, String> textForOperation)
+			throws TelegramApiException {
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
