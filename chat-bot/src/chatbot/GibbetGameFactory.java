@@ -1,13 +1,16 @@
 package chatbot;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Random;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
 
 public class GibbetGameFactory implements GibbetGameCreator {
 	
-	private JSONArray words = new JSONArray();
+	private HashMap<Integer, ArrayList<String>> sortedByLengthWords = new HashMap<Integer, ArrayList<String>>();
+	private ArrayList<String> words = new ArrayList<String>();
 	private Random rnd;
 	
 	public GibbetGameFactory(Random rnd) {
@@ -20,14 +23,20 @@ public class GibbetGameFactory implements GibbetGameCreator {
 		var parsedFile = new Object();
 		
 		try {
-			parsedFile = parser.parse(new FileReader("nouns.json"));
+			parsedFile = parser.parse(new FileReader("words.json"));
 		}
 		catch(Exception e){
 			System.out.println(e.toString());
 		}
 		
 		JSONObject jsonObj = (JSONObject) parsedFile;
-		words = (JSONArray) jsonObj.get("nouns");
+		for(Object obj : jsonObj.entrySet()) {
+			var entry = (Entry<String, ArrayList<String>>) obj;
+			var length = Integer.parseInt(entry.getKey());
+			var strings = entry.getValue();
+			sortedByLengthWords.put(length, strings);
+			words.addAll(strings);
+		}
 	}
 	
 	public GibbetGame createNew() {
