@@ -45,8 +45,18 @@ public class ChatBot {
 		
 		switch (message) {
 			case "/start":
+			case "/start simple":
+			case "/restart simple":
 			case "/restart":
-				game = gameFactory.createNew();
+				game = gameFactory.createNewGibbetGame();
+				types.add(ReplyType.start);
+				types.add(ReplyType.show);
+				wrongGuesses = game.getWrongGuesses();
+				return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
+			
+			case "/start hard":
+			case "/restart hard":
+				game = gameFactory.createNewHardGibbetGame();
 				types.add(ReplyType.start);
 				types.add(ReplyType.show);
 				wrongGuesses = game.getWrongGuesses();

@@ -39,8 +39,14 @@ public class GibbetGameFactory implements GibbetGameCreator {
 		}
 	}
 	
-	public GibbetGame createNew() {
+	public GibbetGame createNewGibbetGame() {
 		return new GibbetGame(chooseWord(), 6);
+	}
+	
+	public HardGibbetGame createNewHardGibbetGame() {
+		var word = chooseWord();
+		return new HardGibbetGame(word, 6, 
+				sortedByLengthWords.get(word.length()));
 	}
 
 	private String chooseWord() {

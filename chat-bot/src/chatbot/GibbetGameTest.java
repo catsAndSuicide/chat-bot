@@ -16,33 +16,33 @@ class GibbetGameTest {
 	@Test
 	void showWordWithGuessedLetters() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		gibbetGame.letterIsInWord('b');
+		gibbetGame.checkLetter('b');
 		assertEquals(gibbetGame.showWord(), "**bb**");
 	}
 	
 	@Test
 	void letterIsInWord() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.letterIsInWord('b'), true);
+		assertEquals(gibbetGame.checkLetter('b'), true);
 	}
 	
 	@Test
 	void letterIsNotInWord() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.letterIsInWord('a'), false);
+		assertEquals(gibbetGame.checkLetter('a'), false);
 	}
 	
 	@Test
 	void letterIsInGuessedLetters() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		gibbetGame.letterIsInWord('b');
+		gibbetGame.checkLetter('b');
 		assertEquals(gibbetGame.letterIsInGuessedLetters('b'), true);
 	}
 	
 	@Test
 	void letterIsNotInGuessedLetters() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		gibbetGame.letterIsInWord('g');
+		gibbetGame.checkLetter('g');
 		assertEquals(gibbetGame.letterIsInGuessedLetters('b'), false);
 	}
 	

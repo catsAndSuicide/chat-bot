@@ -1,5 +1,6 @@
 package chatbot;
 
 public interface GibbetGameCreator {
-	GibbetGame createNew();
+	GibbetGame createNewGibbetGame();
+	HardGibbetGame createNewHardGibbetGame();
 }

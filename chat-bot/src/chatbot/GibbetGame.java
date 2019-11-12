@@ -3,8 +3,8 @@ import java.util.Arrays;
 
 public class GibbetGame {
 	
-	private String hiddenWord;
-	private char[] guessedLetters;
+	protected String hiddenWord;
+	protected char[] guessedLetters;
 	private int wrongGuesses;
 	private int guessLimit;
 	
@@ -33,16 +33,29 @@ public class GibbetGame {
 		return hiddenWord;
 	}
 
-	public boolean letterIsInWord(char letter) {
-		var letterInWord = false;
-		
+	public boolean checkLetter(char letter) {
+		var index = indexOfLetter(letter);
+		if (index == -1)
+			return false;
+		guessedLetters[index] = letter;
+		return true;
+	}
+	
+	public boolean checkWord(String word) {
+		if (hiddenWord.equalsIgnoreCase(word)) {
+			guessedLetters = hiddenWord.toCharArray();
+			return true;
+		}
+		return false;
+	}
+	
+	public int indexOfLetter(char letter) {
 		for (var i = 0; i < hiddenWord.length(); i++) {
 			if (hiddenWord.charAt(i) == letter) {
-				guessedLetters[i] = letter;
-				letterInWord = true;
+				return i;
 			}
 		}
-		return letterInWord;
+		return -1;
 	}
 	
 	public boolean letterIsInGuessedLetters(char letter) {
@@ -62,7 +75,7 @@ public class GibbetGame {
 	}
 	
 	public TurnResult receiveLetter(char letter) {
-		if (letterIsInWord(letter))
+		if (checkLetter(letter))
 			return TurnResult.rightGuess;
 	
 		wrongGuesses++;
@@ -70,10 +83,8 @@ public class GibbetGame {
 	}
 	
 	public TurnResult receiveWord(String word) {
-		if (hiddenWord.equalsIgnoreCase(word)) {
-			guessedLetters = hiddenWord.toCharArray();
+		if (checkWord(word))
 			return TurnResult.rightGuess;
-		}
 	
 		wrongGuesses++;
 		return TurnResult.wrongGuess;
