@@ -1,4 +1,5 @@
 package chatbot;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GibbetGame {
@@ -34,10 +35,11 @@ public class GibbetGame {
 	}
 
 	public boolean checkLetter(char letter) {
-		var index = indexOfLetter(letter);
-		if (index == -1)
+		var indexes = indexesOfLetter(letter);
+		if (indexes.size() == 0)
 			return false;
-		guessedLetters[index] = letter;
+		for (Integer index : indexes)
+			guessedLetters[index] = letter;
 		return true;
 	}
 	
@@ -49,13 +51,14 @@ public class GibbetGame {
 		return false;
 	}
 	
-	public int indexOfLetter(char letter) {
+	public ArrayList<Integer> indexesOfLetter(char letter) {
+		var result = new ArrayList<Integer>();
 		for (var i = 0; i < hiddenWord.length(); i++) {
 			if (hiddenWord.charAt(i) == letter) {
-				return i;
+				result.add(i);
 			}
 		}
-		return -1;
+		return result;
 	}
 	
 	public boolean letterIsInGuessedLetters(char letter) {

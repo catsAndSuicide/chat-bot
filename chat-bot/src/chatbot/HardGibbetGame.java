@@ -13,20 +13,21 @@ public class HardGibbetGame extends GibbetGame {
 	}
 	
 	public boolean chechLetter(char letter) {
-		var index = indexOfLetter(letter);
-		if (index == -1)
+		var indexes = indexesOfLetter(letter);
+		if (indexes.size() == 0)
 			return false;
 		var wordsWithLetter = new ArrayList<String>();
 		var wordsWithoutLetter = new ArrayList<String>();
 		for (String word : words) {
-			if (word.charAt(index) == letter)
+			if (word.indexOf(letter) != -1)
 				wordsWithLetter.add(word);
 			else
 				wordsWithoutLetter.add(word);
 		}
 		if (wordsWithoutLetter.size() <= wordsWithLetter.size()) {
 			words = wordsWithLetter;
-			guessedLetters[index] = letter;
+			for (Integer index : indexes)
+				guessedLetters[index] = letter;
 			return true;
 		}
 		hiddenWord = wordsWithoutLetter.get(0);
