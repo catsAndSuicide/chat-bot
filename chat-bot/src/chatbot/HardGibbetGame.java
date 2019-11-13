@@ -14,8 +14,6 @@ public class HardGibbetGame extends GibbetGame {
 	
 	public boolean chechLetter(char letter) {
 		var indexes = indexesOfLetter(letter);
-		if (indexes.size() == 0)
-			return false;
 		var wordsWithLetter = new ArrayList<String>();
 		var wordsWithoutLetter = new ArrayList<String>();
 		for (String word : words) {
