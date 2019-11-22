@@ -12,7 +12,7 @@ public class BotReply {
 	public TurnResult turnResult;
 	public String[] availableOperations;
 	
-	BotReply(String guessedWord, ArrayList<ReplyType> replyTypes, 
+	public BotReply(String guessedWord, ArrayList<ReplyType> replyTypes, 
 			TurnResult turnResult, int wrongGuesses, String[] availableOperations) {
 		this.guessedWord = guessedWord;
 		this.replyTypes = replyTypes;

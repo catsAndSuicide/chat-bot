@@ -22,7 +22,9 @@ public class ChatBot {
 	
 	private String[] getGameCommands() {
 		if (game == null)
-			return new String[] {"start", "help"};
+			return new String[] {"start", "start hard", "help"};
+		if (game instanceof HardGibbetGame)
+			return new String[] {"restart hard", "help", "end", "show"};
 		return new String[] {"restart", "help", "end", "show"};
 	}
 	
@@ -39,89 +41,112 @@ public class ChatBot {
 	}
 	
 	public BotReply reply(String message){
-		var types = new ArrayList<ReplyType>();
-		var wrongGuesses = 0;
-		var hiddenWord = "";
+		var replyBuilder = new BotReplyBuilder();
 		
 		switch (message) {
 			case "/start":
-			case "/start simple":
-			case "/restart simple":
 			case "/restart":
 				game = gameFactory.createNewGibbetGame();
-				types.add(ReplyType.start);
-				types.add(ReplyType.show);
-				wrongGuesses = game.getWrongGuesses();
-				return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
+				replyStartGame(replyBuilder);
+				break;
 			
 			case "/start hard":
 			case "/restart hard":
 				game = gameFactory.createNewHardGibbetGame();
-				types.add(ReplyType.start);
-				types.add(ReplyType.show);
-				wrongGuesses = game.getWrongGuesses();
-				return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
+				replyStartGame(replyBuilder);
+				break;
 				
 			case "/help":
-				types.add(ReplyType.help);
-				return new BotReply("", types, null, wrongGuesses, getGameCommands());
+				replyBuilder.addReplyType(ReplyType.help);
+				break;
 				
 			case "/end":
-				if (game == null) {
-					types.add(ReplyType.endNotStartedGame);
-					types.add(ReplyType.help);
-					return new BotReply("", types, null, wrongGuesses, getGameCommands());
-				}
-				hiddenWord = game.showHiddenWord();
-				game = null;
-				types.add(ReplyType.show);
-				types.add(ReplyType.end);
-				return new BotReply(hiddenWord, types, null, wrongGuesses, getGameCommands());
+				replyEndGame(replyBuilder);
+				break;
 				
 			case "/show":
-				if (game != null) {
-					types.add(ReplyType.show);
-					return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
-				}
-				types.add(ReplyType.help);
-				return new BotReply("", types, null, wrongGuesses, getGameCommands());
+				replyShowWord(replyBuilder);
+				break;
 				
 			default:
-				if (game != null) {
-					if (message.matches("[A-Za-z]{1}") || message.length() == game.showHiddenWord().length())
-					{
-						GibbetGame.TurnResult answer = null;
-						if (message.matches("[A-Za-z]{1}")) {
-							var letter = Character.toLowerCase(message.charAt(0));
-							if (game.letterIsInGuessedLetters(letter)) {
-								types.add(ReplyType.repeatedGuess);
-								return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
-							}
-							else {
-								answer = game.receiveLetter(letter);
-								wrongGuesses = game.getWrongGuesses();
-								types.add(ReplyType.show);
-							}
-						}
-						else {
-							answer = game.receiveWord(message);
-							wrongGuesses = game.getWrongGuesses();
-							types.add(ReplyType.show);
-						}
-						var winOrLoss = checkWinOrLoss();
-						if (winOrLoss != null) {
-							hiddenWord = game.showHiddenWord();
-							game = null;
-							types.add(winOrLoss);
-							return new BotReply(hiddenWord, types, answer, wrongGuesses, getGameCommands());
-						}
-						return new BotReply(game.showWord(), types, answer, wrongGuesses, getGameCommands());
-					}
-					types.add(ReplyType.strangeGuess);
-					return new BotReply(game.showWord(), types, null, wrongGuesses, getGameCommands());
-				}
-				types.add(ReplyType.help);
-				return new BotReply("", types, null, wrongGuesses, getGameCommands());
+				replyDefault(replyBuilder, message);
+				break;
+		}
+		
+		replyBuilder.setAvailableOperations(getGameCommands());
+		return replyBuilder.buildReply();
+	}
+	
+	private void replyShowWord(BotReplyBuilder replyBuilder) {
+		if (game != null) {
+			replyBuilder.setGuessedWord(game.showWord());
+		}
+		replyBuilder.addReplyType(ReplyType.show);
+	}
+	
+	private void replyEndGame(BotReplyBuilder replyBuilder) {
+		if (game == null) {
+			replyBuilder.addReplyType(ReplyType.endNotStartedGame);
+			replyBuilder.addReplyType(ReplyType.help);
+		}
+		else {
+			replyBuilder.setGuessedWord(game.showHiddenWord());
+			game = null;
+			replyBuilder.addReplyType(ReplyType.show);
+			replyBuilder.addReplyType(ReplyType.end);
+		}
+	}
+	
+	private void replyStartGame(BotReplyBuilder replyBuilder) {
+		replyBuilder.addReplyType(ReplyType.start);
+		replyBuilder.addReplyType(ReplyType.show);
+		replyBuilder.setWrongGuesses(game.getWrongGuesses());
+		replyBuilder.setGuessedWord(game.showWord());
+	}
+	
+	private void replyDefault(BotReplyBuilder replyBuilder, String message) {
+		if (game != null) {
+			if (message.matches("[A-Za-z]{1}") || message.length() == game.showHiddenWord().length()) {
+				replyGuess(replyBuilder, message);
+			}
+			else {
+				replyBuilder.addReplyType(ReplyType.strangeGuess);
+				replyBuilder.setGuessedWord(game.showWord());
+			}
+		}
+		else {
+			replyBuilder.addReplyType(ReplyType.help);
+		}
+	}
+	
+	private void replyGuess(BotReplyBuilder replyBuilder, String message) {
+		if (message.matches("[A-Za-z]{1}")) {
+			var letter = Character.toLowerCase(message.charAt(0));
+			
+			if (game.letterIsInGuessedLetters(letter)) {
+				replyBuilder.addReplyType(ReplyType.repeatedGuess);
+				replyBuilder.setGuessedWord(game.showWord());
+			}
+			else {
+				replyBuilder.setTurnResult(game.receiveLetter(letter));
+				replyBuilder.setWrongGuesses(game.getWrongGuesses());
+				replyBuilder.addReplyType(ReplyType.show);
+			}
+		}
+		else {
+			replyBuilder.setTurnResult(game.receiveWord(message));
+			replyBuilder.setWrongGuesses(game.getWrongGuesses());
+			replyBuilder.addReplyType(ReplyType.show);
+		}
+		
+		var winOrLoss = checkWinOrLoss();
+		if (winOrLoss != null) {
+			replyBuilder.setGuessedWord(game.showHiddenWord());
+			game = null;
+			replyBuilder.addReplyType(winOrLoss);
+		}
+		else {
+			replyBuilder.setGuessedWord(game.showWord());
 		}
 	}
 }

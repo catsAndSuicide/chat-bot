@@ -37,6 +37,8 @@ public class BotMessageMaker {
 				return "This is a Gibbet-game bot.\n"
 						+ "/start - to start a new game.\n"
 						+ "/restart - to restart a game.\n"
+						+ "/start hard - to start a new game on a hard level.\n"
+						+ "/restart hard - to restart a game on a hard level.\n"
 						+ "/end - to end the current game.\n"
 						+ "/show - to show the word, which you guess.\n"
 						+ "/help - to see this message.";
@@ -67,8 +69,14 @@ public class BotMessageMaker {
 				case "start":
 					availableOperations.put("/start", "start");
 					break;
+				case "start hard":
+					availableOperations.put("/start hard", "start hard");
+					break;
 				case "restart":
 					availableOperations.put("/start", "restart");
+					break;
+				case "restart hard":
+					availableOperations.put("/start hard", "restart hard");
 					break;
 				case "end":
 					availableOperations.put("/end", "end");
