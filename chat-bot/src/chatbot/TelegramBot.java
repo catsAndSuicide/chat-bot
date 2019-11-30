@@ -53,7 +53,7 @@ public class TelegramBot extends TelegramLongPollingBot{
 			
 			synchronized(chatBots) {
 				if (!chatBots.containsKey(id)) {
-					chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random())));
+					chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random()), new SimpleLevelSwitcher()));
 				}
 				var chatBot = chatBots.get(id);
 				answer = botMessage.getMessage(chatBot.reply(message));

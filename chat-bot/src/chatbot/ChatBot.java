@@ -1,15 +1,15 @@
 package chatbot;
 
-import java.util.ArrayList;
-
 public class ChatBot {
 
-	private GibbetGameCreator gameFactory;
+	private AbstractGibbetGameFactory gameFactory;
 	private GibbetGame game;
+	private LevelSwitcher levelSwitcher;
 	
-	public ChatBot(GibbetGameCreator gameFactory) {
+	public ChatBot(AbstractGibbetGameFactory gameFactory, LevelSwitcher levelSwitcher) {
 		super();
 		this.gameFactory = gameFactory;
+		this.levelSwitcher = levelSwitcher;
 	}
 
 	private ReplyType checkWinOrLoss() {
@@ -21,8 +21,11 @@ public class ChatBot {
 	}
 	
 	private String[] getGameCommands() {
-		if (game == null)
-			return new String[] {"start", "start hard", "help"};
+		if (game == null) {
+			if (levelSwitcher.canStartLevel(1))
+				return new String[] {"start", "start hard", "help"};
+			return new String[] {"start", "help"};
+		}
 		if (game instanceof HardGibbetGame)
 			return new String[] {"restart hard", "help", "end", "show"};
 		return new String[] {"restart", "help", "end", "show"};
@@ -37,7 +40,9 @@ public class ChatBot {
 		show,
 		repeatedGuess,
 		strangeGuess,
-		endNotStartedGame
+		endNotStartedGame,
+		closedLevel,
+		hint
 	}
 	
 	public BotReply reply(String message){
@@ -46,14 +51,18 @@ public class ChatBot {
 		switch (message) {
 			case "/start":
 			case "/restart":
-				game = gameFactory.createNewGibbetGame();
+				game = gameFactory.createNewGibbetGame(0);
 				replyStartGame(replyBuilder);
 				break;
 			
 			case "/start hard":
 			case "/restart hard":
-				game = gameFactory.createNewHardGibbetGame();
-				replyStartGame(replyBuilder);
+				if (levelSwitcher.canStartLevel(1)) {
+					game = gameFactory.createNewGibbetGame(1);
+					replyStartGame(replyBuilder);
+				}
+				else 
+					replyBuilder.addReplyType(ReplyType.closedLevel);
 				break;
 				
 			case "/help":
@@ -68,6 +77,11 @@ public class ChatBot {
 				replyShowWord(replyBuilder);
 				break;
 				
+			case "/hint":
+				replyBuilder.addReplyType(ReplyType.hint);
+				replyBuilder.setHint(new ImageSearcher(game.hiddenWord).findImage());
+				break;
+				
 			default:
 				replyDefault(replyBuilder, message);
 				break;
@@ -80,8 +94,9 @@ public class ChatBot {
 	private void replyShowWord(BotReplyBuilder replyBuilder) {
 		if (game != null) {
 			replyBuilder.setGuessedWord(game.showWord());
+			replyBuilder.addReplyType(ReplyType.show);		
 		}
-		replyBuilder.addReplyType(ReplyType.show);
+		replyBuilder.addReplyType(ReplyType.strangeGuess);
 	}
 	
 	private void replyEndGame(BotReplyBuilder replyBuilder) {
@@ -141,6 +156,10 @@ public class ChatBot {
 		
 		var winOrLoss = checkWinOrLoss();
 		if (winOrLoss != null) {
+			if (winOrLoss == ReplyType.win)
+				levelSwitcher.registerWin();
+			else
+				levelSwitcher.registerLoss();
 			replyBuilder.setGuessedWord(game.showHiddenWord());
 			game = null;
 			replyBuilder.addReplyType(winOrLoss);

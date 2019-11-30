@@ -11,6 +11,7 @@ public class BotReplyBuilder {
 	private TurnResult turnResult;
 	private int wrongGuesses;
 	private String[] availableOperations;
+	private String hint;
 	
 	public BotReplyBuilder() {
 		guessedWord = "";
@@ -18,6 +19,7 @@ public class BotReplyBuilder {
 		turnResult = null;
 		wrongGuesses = 0;
 		availableOperations = null;
+		hint = "";
 	}
 	
 	public void setGuessedWord(String word) {
@@ -40,7 +42,11 @@ public class BotReplyBuilder {
 		availableOperations = operations;
 	}
 	
+	public void setHint(String image) {
+		hint = image;
+	}
+	
 	public BotReply buildReply() {
-		return new BotReply(guessedWord, replyTypes, turnResult, wrongGuesses, availableOperations);
+		return new BotReply(guessedWord, replyTypes, turnResult, wrongGuesses, availableOperations, hint);
 	}
 }

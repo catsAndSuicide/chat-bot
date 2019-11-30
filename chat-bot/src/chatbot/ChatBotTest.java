@@ -11,7 +11,7 @@ import chatbot.GibbetGame.TurnResult;
 public class ChatBotTest {
 	
 	private ChatBot createChatBot(String word, int limit) {
-		return new ChatBot(new SimpleGibbetGameCreator(word, limit));
+		return new ChatBot(new SimpleGibbetGameFactory(word, limit), new SimpleLevelSwitcher());
 	}
 
 	private void checkReply(BotReply actualReply,

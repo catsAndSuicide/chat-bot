@@ -7,7 +7,7 @@ import java.util.Random;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONObject;
 
-public class GibbetGameFactory implements GibbetGameCreator {
+public class GibbetGameFactory implements AbstractGibbetGameFactory {
 	
 	private HashMap<Integer, ArrayList<String>> sortedByLengthWords = new HashMap<Integer, ArrayList<String>>();
 	private ArrayList<String> words = new ArrayList<String>();
@@ -39,8 +39,10 @@ public class GibbetGameFactory implements GibbetGameCreator {
 		}
 	}
 	
-	public GibbetGame createNewGibbetGame() {
-		return new GibbetGame(chooseWord(), 6);
+	public GibbetGame createNewGibbetGame(int level) {
+		if (level == 0)
+			return new GibbetGame(chooseWord(), 6);
+		return createNewHardGibbetGame();
 	}
 	
 	public HardGibbetGame createNewHardGibbetGame() {

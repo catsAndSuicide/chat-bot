@@ -56,6 +56,10 @@ public class BotMessageMaker {
 				return reply.guessedWord;
 			case endNotStartedGame:
 				return "You should start game to end it!";
+			case closedLevel:
+				return "This level is closed!";
+			case hint:
+				return reply.hint;
 			default:
 				return "I don't understand!";
 		}
