@@ -78,7 +78,6 @@ public class ChatBot {
 				break;
 				
 			case "/hint":
-				replyBuilder.addReplyType(ReplyType.hint);
 				replyBuilder.setHint(new ImageSearcher(game.hiddenWord).findImage());
 				break;
 				

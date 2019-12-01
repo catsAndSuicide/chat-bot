@@ -19,7 +19,8 @@ public class BotMessageMaker {
 		for (var i = 0; i < reply.replyTypes.size(); i++) {
 			textFragments.add(getReplyFragment(reply.replyTypes.get(i), reply));
 		}
-		return new BotMessage(String.join("\n", textFragments), photoName, getAvailableOperations(reply));
+		return new BotMessage(String.join(
+				"\n", textFragments), photoName, getAvailableOperations(reply), reply.hint);
 	}
 
 	private String getTurnResultReplyFragment(BotReply reply) {
@@ -58,8 +59,6 @@ public class BotMessageMaker {
 				return "You should start game to end it!";
 			case closedLevel:
 				return "This level is closed!";
-			case hint:
-				return reply.hint;
 			default:
 				return "I don't understand!";
 		}

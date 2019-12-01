@@ -59,9 +59,17 @@ public class TelegramBot extends TelegramLongPollingBot{
 				answer = botMessage.getMessage(chatBot.reply(message));
 				availableOperations = answer.availableOperations;
 			}
-			if (answer.photoName != null)
-				sendPhoto(id, answer.photoName);
-			sendMsg(id, answer.text, availableOperations);
+			if (answer.hint != "")
+				sendPhoto(id, answer.hint);
+			
+			else {
+				if (answer.photoName != null) {
+					var photo = new File(
+							System.getProperty("user.dir") + File.separator + "pictures", answer.photoName);
+					sendPhoto(id, photo);
+				}
+				sendMsg(id, answer.text, availableOperations);
+			}
 		}
 		catch (Exception e) {
 			System.out.printf("Error %1$s, id: %2$s, message: %3$s\n", e.toString(), id, message);
@@ -71,8 +79,14 @@ public class TelegramBot extends TelegramLongPollingBot{
 	private void sendPhoto(String chatId, String photoName) throws TelegramApiException {
 		SendPhoto sendPhoto = new SendPhoto();
 		sendPhoto.setChatId(chatId);
-		sendPhoto.setPhoto(new File(System.getProperty("user.dir") + File.separator + "pictures", photoName));
-		
+		sendPhoto.setPhoto(photoName);
+		execute(sendPhoto);
+	}
+	
+	private void sendPhoto(String chatId, File photo) throws TelegramApiException {
+		SendPhoto sendPhoto = new SendPhoto();
+		sendPhoto.setChatId(chatId);
+		sendPhoto.setPhoto(photo);
 		execute(sendPhoto);
 	}
 
