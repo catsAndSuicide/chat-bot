@@ -91,6 +91,9 @@ public class BotMessageMaker {
 				case "help":
 					availableOperations.put("/help", "help");
 					break;
+				case "hint":
+					availableOperations.put("/hint", "hint");
+					break;
 			}
 		return availableOperations;
 	}

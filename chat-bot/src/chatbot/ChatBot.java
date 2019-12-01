@@ -27,8 +27,8 @@ public class ChatBot {
 			return new String[] {"start", "help"};
 		}
 		if (game instanceof HardGibbetGame)
-			return new String[] {"restart hard", "help", "end", "show"};
-		return new String[] {"restart", "help", "end", "show"};
+			return new String[] {"restart hard", "help", "end", "show", "hint"};
+		return new String[] {"restart", "help", "end", "show", "hint"};
 	}
 	
 	public enum ReplyType {
