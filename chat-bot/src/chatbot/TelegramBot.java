@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Timer;
+
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -21,11 +23,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 public class TelegramBot extends TelegramLongPollingBot{
 	
 	private HashMap<String, ChatBot> chatBots;
+	private HashMap<String, Timer> timers;
 	private BotMessageMaker botMessage;
 	
 	public TelegramBot() {
 		chatBots = new HashMap<String, ChatBot>();
 		botMessage = new BotMessageMaker();
+		timers = new HashMap<String, Timer>();
 	}
 
 	public static void main(String[] args) throws TelegramApiRequestException {
@@ -38,41 +42,50 @@ public class TelegramBot extends TelegramLongPollingBot{
 	public void onUpdateReceived(Update update) {
 		var message = "";
 		var id = "";
-		BotMessage answer = null;
-		HashMap<String, String> availableOperations = null;
 		try {
 			if (update.hasMessage() && update.getMessage().hasText()){
 				message = update.getMessage().getText();
 				id = update.getMessage().getChatId().toString();
 			}
-			
 			else if (update.hasCallbackQuery()) {
 				message = update.getCallbackQuery().getData();
 				id = update.getCallbackQuery().getMessage().getChatId().toString();
 			}
-			
-			synchronized(chatBots) {
-				if (!chatBots.containsKey(id)) {
-					chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random()), new SimpleLevelSwitcher()));
-				}
-				var chatBot = chatBots.get(id);
-				answer = botMessage.getMessage(chatBot.reply(message));
-				availableOperations = answer.availableOperations;
-			}
-			if (answer.hint != "")
-				sendPhoto(id, answer.hint);
-			
-			else {
-				if (answer.photoName != null) {
-					var photo = new File(
-							System.getProperty("user.dir") + File.separator + "pictures", answer.photoName);
-					sendPhoto(id, photo);
-				}
-				sendMsg(id, answer.text, availableOperations);
-			}
+			replyToMessage(message, id);
 		}
 		catch (Exception e) {
 			System.out.printf("Error %1$s, id: %2$s, message: %3$s\n", e.toString(), id, message);
+		}
+	}
+	
+	protected void replyToMessage(String message, String id) throws TelegramApiException {
+		BotMessage answer = null;
+		HashMap<String, String> availableOperations = null;
+		
+		synchronized(chatBots) {
+			if (!chatBots.containsKey(id)) {
+				chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random()), new SimpleLevelSwitcher()));
+				timers.put(id, new Timer());
+			}
+			var chatBot = chatBots.get(id);
+			answer = botMessage.getMessage(chatBot.reply(message));
+			availableOperations = answer.availableOperations;
+		}
+		if (answer.gameIsStarted)
+			timers.get(id).schedule(new HintRequestTask(id, this), 6000L);
+		else if (answer.gameIsEnded)
+			timers.get(id).cancel();
+			
+		if (answer.hint != "")
+			sendPhoto(id, answer.hint);
+		
+		else {
+			if (answer.photoName != null) {
+				var photo = new File(
+						System.getProperty("user.dir") + File.separator + "pictures", answer.photoName);
+				sendPhoto(id, photo);
+			}
+			sendMsg(id, answer.text, availableOperations);
 		}
 	}
 	
