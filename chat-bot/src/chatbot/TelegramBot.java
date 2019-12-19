@@ -71,13 +71,17 @@ public class TelegramBot extends TelegramLongPollingBot{
 			answer = botMessage.getMessage(chatBot.reply(message));
 			availableOperations = answer.availableOperations;
 		}
-		if (answer.gameIsStarted)
-			timers.get(id).schedule(new HintRequestTask(id, this), 6000L);
-		else if (answer.gameIsEnded)
+		if (answer.gameIsStarted) {
 			timers.get(id).cancel();
-			
-		if (answer.hint != "")
+			timers.put(id, new Timer());
+			timers.get(id).schedule(new HintRequestTask(id, this), 60000L);
+		}
+		else if (answer.gameIsEnded) {
+			timers.get(id).cancel();
+		}
+		if (answer.hint != null) {
 			sendPhoto(id, answer.hint);
+		}
 		
 		else {
 			if (answer.photoName != null) {

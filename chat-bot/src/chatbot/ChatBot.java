@@ -20,7 +20,7 @@ public class ChatBot {
 		return null;
 	}
 	
-	private String[] getGameCommands() {
+	private String[] getAvailableOperations() {
 		if (game == null) {
 			if (levelSwitcher.canStartLevel(1))
 				return new String[] {"start", "start hard", "help"};
@@ -42,7 +42,8 @@ public class ChatBot {
 		strangeGuess,
 		endNotStartedGame,
 		closedLevel,
-		hint
+		hint,
+		hintNotStartedGame
 	}
 	
 	public BotReply reply(String message){
@@ -78,7 +79,10 @@ public class ChatBot {
 				break;
 				
 			case "/hint":
-				replyBuilder.setHint(new ImageSearcher(game.hiddenWord).findImage());
+				if (game != null)
+					replyBuilder.setHint(new ImageSearcher(game.hiddenWord).findImage());
+				else
+					replyBuilder.addReplyType(ReplyType.hintNotStartedGame);
 				break;
 				
 			default:
@@ -86,7 +90,7 @@ public class ChatBot {
 				break;
 		}
 		
-		replyBuilder.setAvailableOperations(getGameCommands());
+		replyBuilder.setAvailableOperations(getAvailableOperations());
 		return replyBuilder.buildReply();
 	}
 	
@@ -95,7 +99,9 @@ public class ChatBot {
 			replyBuilder.setGuessedWord(game.showWord());
 			replyBuilder.addReplyType(ReplyType.show);		
 		}
-		replyBuilder.addReplyType(ReplyType.strangeGuess);
+		else {
+			replyBuilder.addReplyType(ReplyType.strangeGuess);
+		}
 	}
 	
 	private void replyEndGame(BotReplyBuilder replyBuilder) {

@@ -16,6 +16,7 @@ public class BotMessageMaker {
 			photoName = Integer.toString(reply.wrongGuesses + 1) + ".jpg";
 			textFragments.add(getTurnResultReplyFragment(reply));
 		}
+	
 		for (var i = 0; i < reply.replyTypes.size(); i++) {
 			textFragments.add(getReplyFragment(reply.replyTypes.get(i), reply));
 		}

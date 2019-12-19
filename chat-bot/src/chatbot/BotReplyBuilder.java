@@ -19,7 +19,7 @@ public class BotReplyBuilder {
 		turnResult = null;
 		wrongGuesses = 0;
 		availableOperations = null;
-		hint = "";
+		hint = null;
 	}
 	
 	public void setGuessedWord(String word) {

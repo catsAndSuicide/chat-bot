@@ -10,52 +10,52 @@ class GibbetGameTest {
 	@Test
 	void showEmptyWord() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.showWord(), "******");
+		assertEquals("******", gibbetGame.showWord());
 	}
 	
 	@Test
 	void showWordWithGuessedLetters() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
 		gibbetGame.checkLetter('b');
-		assertEquals(gibbetGame.showWord(), "**bb**");
+		assertEquals("**bb**", gibbetGame.showWord());
 	}
 	
 	@Test
 	void letterIsInWord() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.checkLetter('b'), true);
+		assertEquals(true, gibbetGame.checkLetter('b'));
 	}
 	
 	@Test
 	void letterIsNotInWord() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.checkLetter('a'), false);
+		assertEquals(false, gibbetGame.checkLetter('a'));
 	}
 	
 	@Test
 	void letterIsInGuessedLetters() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
 		gibbetGame.checkLetter('b');
-		assertEquals(gibbetGame.letterIsInGuessedLetters('b'), true);
+		assertEquals(true, gibbetGame.letterIsInGuessedLetters('b'));
 	}
 	
 	@Test
 	void letterIsNotInGuessedLetters() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
 		gibbetGame.checkLetter('g');
-		assertEquals(gibbetGame.letterIsInGuessedLetters('b'), false);
+		assertEquals(false, gibbetGame.letterIsInGuessedLetters('b'));
 	}
 	
 	@Test
 	void checkRightLetter() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.receiveLetter('e'), TurnResult.rightGuess);
+		assertEquals(TurnResult.rightGuess, gibbetGame.receiveLetter('e'));
 	}
 	
 	@Test
 	void checkWrongLetter() {
 		var gibbetGame = new GibbetGame("gibbet", 5);
-		assertEquals(gibbetGame.receiveLetter('a'), TurnResult.wrongGuess);
+		assertEquals(TurnResult.wrongGuess, gibbetGame.receiveLetter('a'));
 	}
 	
 	@Test
@@ -64,7 +64,7 @@ class GibbetGameTest {
 		gibbetGame.receiveLetter('c');
 		gibbetGame.receiveLetter('a');
 		gibbetGame.receiveLetter('t');
-		assertEquals(gibbetGame.isWin(), true);
+		assertEquals(true, gibbetGame.isWin());
 	}
 	
 	@Test
@@ -72,6 +72,6 @@ class GibbetGameTest {
 		var gibbetGame = new GibbetGame("cat", 2);
 		gibbetGame.receiveLetter('b');
 		gibbetGame.receiveLetter('d');
-		assertEquals(gibbetGame.isLoss(), true);
+		assertEquals(true, gibbetGame.isLoss());
 	}
 }

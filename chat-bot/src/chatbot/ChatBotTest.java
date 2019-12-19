@@ -1,5 +1,6 @@
 package chatbot;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,13 +25,13 @@ public class ChatBotTest {
 			assertTrue(type.toString(), actualReply.replyTypes.contains(type));
 		
 		assertEquals(expectedWord, actualReply.guessedWord);
-		assertEquals(actualReply.turnResult, expectedTurnResult);
-		assertEquals(actualReply.wrongGuesses, expectedWrongGuesses);
+		assertEquals(expectedTurnResult, actualReply.turnResult);
+		assertEquals(expectedWrongGuesses, actualReply.wrongGuesses);
 	}
 
 	@Test
 	void replyHelp() {
-		var chatBot = createChatBot("someWord", 5);
+		var chatBot = createChatBot("gibbet", 5);
 		var reply = chatBot.reply("/help");
 		
 		checkReply(reply, "",  
@@ -39,29 +40,20 @@ public class ChatBotTest {
 	
 	@Test
 	void replyStart() {
-		var chatBot = createChatBot("someWord", 5);
+		var chatBot = createChatBot("gibbet", 5);
 		var reply = chatBot.reply("/start");
 		
-		checkReply(reply, "********", 
+		checkReply(reply, "******", 
 				new ReplyType[] {ReplyType.start, ReplyType.show}, null, 0);
 	}
 	
 	@Test
-	void replyShowWhenNullGame() {
-		var chatBot = createChatBot("someWord", 5);
-		var reply = chatBot.reply("/show");
-		
-		checkReply(reply, "", 
-				new ReplyType[] {ReplyType.help}, null, 0);
-	}
-	
-	@Test
-	void replyShowWhenGameStarted() {
-		var chatBot = createChatBot("someWord", 5);
+	void replyShow() {
+		var chatBot = createChatBot("gibbet", 5);
 		chatBot.reply("/start");
 		var reply = chatBot.reply("/show");
 		
-		checkReply(reply, "********", 
+		checkReply(reply, "******", 
 				new ReplyType[] {ReplyType.show}, null, 0);
 	}
 	
@@ -125,5 +117,35 @@ public class ChatBotTest {
 		
 		checkReply(reply, "cat", 
 				new ReplyType[] {ReplyType.show, ReplyType.win}, TurnResult.rightGuess, 0);
+	}
+	
+	@Test
+	void hardLevelClosed() {
+		var chatBot = createChatBot("cat", 5);
+		var reply = chatBot.reply("/start hard");
+		
+		checkReply(reply, "",  
+				new ReplyType[] {ReplyType.closedLevel}, null, 0);
+	}
+	
+	@Test
+	void hardLevelOpened() {
+		var chatBot = createChatBot("cat", 5);
+		chatBot.reply("/start");
+		chatBot.reply("a");
+		chatBot.reply("t");
+		chatBot.reply("c");
+		var reply = chatBot.reply("/start hard");
+		
+		assertTrue(reply.replyTypes.contains(ReplyType.start));
+	}
+	
+	@Test
+	void checkReplyForShow() {
+		var chatBot = createChatBot("gibbet", 5);
+		chatBot.reply("/start");
+		var reply = chatBot.reply("/show");
+		
+		assertArrayEquals(reply.replyTypes.toArray(), new ReplyType[] {ReplyType.show});
 	}
 }
