@@ -20,16 +20,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-public class TelegramBot extends TelegramLongPollingBot{
+public class TelegramBot extends TelegramLongPollingBot implements Bot {
 	
 	private HashMap<String, ChatBot> chatBots;
 	private HashMap<String, Timer> timers;
 	private BotMessageMaker botMessage;
+	private AbstractChatBotFactory chatBotFactory;
 	
 	public TelegramBot() {
 		chatBots = new HashMap<String, ChatBot>();
 		botMessage = new BotMessageMaker();
 		timers = new HashMap<String, Timer>();
+		chatBotFactory = new ChatBotFactory();
 	}
 
 	public static void main(String[] args) throws TelegramApiRequestException {
@@ -58,38 +60,48 @@ public class TelegramBot extends TelegramLongPollingBot{
 		}
 	}
 	
-	protected void replyToMessage(String message, String id) throws TelegramApiException {
+	public void replyToMessage(String message, String id) {
 		BotMessage answer = null;
 		HashMap<String, String> availableOperations = null;
 		
 		synchronized(chatBots) {
 			if (!chatBots.containsKey(id)) {
-				chatBots.put(id, new ChatBot(new GibbetGameFactory(new Random()), new SimpleLevelSwitcher()));
-				timers.put(id, new Timer());
+				chatBots.put(id, chatBotFactory.createNewChatBot(id));
 			}
 			var chatBot = chatBots.get(id);
-			answer = botMessage.getMessage(chatBot.reply(message));
+			answer = botMessage.getMessage(chatBot.reply(message, this));
 			availableOperations = answer.availableOperations;
 		}
-		if (answer.gameIsStarted) {
-			timers.get(id).cancel();
-			timers.put(id, new Timer());
-			timers.get(id).schedule(new HintRequestTask(id, this), 60000L);
+		if (answer.timer != null) {
+			if (timers.containsKey(id) && timers.get(id) != null)
+				timers.get(id).cancel();
+			timers.put(id, answer.timer);
+			answer.timer.schedule(answer.task, answer.delay);
 		}
-		else if (answer.gameIsEnded) {
-			timers.get(id).cancel();
-		}
-		if (answer.hint != null) {
-			sendPhoto(id, answer.hint);
+		
+		if (answer.photo != null) {
+			try {
+				sendPhoto(id, answer.photo);
+			} catch (TelegramApiException e) {
+				System.out.println(e.toString());
+			}
 		}
 		
 		else {
 			if (answer.photoName != null) {
 				var photo = new File(
 						System.getProperty("user.dir") + File.separator + "pictures", answer.photoName);
-				sendPhoto(id, photo);
+				try {
+					sendPhoto(id, photo);
+				} catch (TelegramApiException e) {
+					System.out.println(e.toString());
+				}
 			}
-			sendMsg(id, answer.text, availableOperations);
+			try {
+				sendMsg(id, answer.text, availableOperations);
+			} catch (TelegramApiException e) {
+				System.out.println(e.toString());
+			}
 		}
 	}
 	

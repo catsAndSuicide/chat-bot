@@ -1,5 +1,5 @@
 package chatbot;
 
 public interface AbstractGibbetGameFactory {
-	GibbetGame createNewGibbetGame(int level);
+	public GibbetGame createNewGibbetGame(int level);
 }

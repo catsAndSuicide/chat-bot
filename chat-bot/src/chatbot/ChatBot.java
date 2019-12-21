@@ -1,15 +1,19 @@
 package chatbot;
 
+import java.util.Timer;
+
 public class ChatBot {
 
 	private AbstractGibbetGameFactory gameFactory;
 	private GibbetGame game;
 	private LevelSwitcher levelSwitcher;
+	private String id;
 	
-	public ChatBot(AbstractGibbetGameFactory gameFactory, LevelSwitcher levelSwitcher) {
+	public ChatBot(AbstractGibbetGameFactory gameFactory, LevelSwitcher levelSwitcher, String id) {
 		super();
 		this.gameFactory = gameFactory;
 		this.levelSwitcher = levelSwitcher;
+		this.id = id;
 	}
 
 	private ReplyType checkWinOrLoss() {
@@ -46,21 +50,21 @@ public class ChatBot {
 		hintNotStartedGame
 	}
 	
-	public BotReply reply(String message){
+	public BotReply reply(String message, Bot requester){
 		var replyBuilder = new BotReplyBuilder();
 		
 		switch (message) {
 			case "/start":
 			case "/restart":
 				game = gameFactory.createNewGibbetGame(0);
-				replyStartGame(replyBuilder);
+				replyStartGame(replyBuilder, requester);
 				break;
 			
 			case "/start hard":
 			case "/restart hard":
 				if (levelSwitcher.canStartLevel(1)) {
 					game = gameFactory.createNewGibbetGame(1);
-					replyStartGame(replyBuilder);
+					replyStartGame(replyBuilder, requester);
 				}
 				else 
 					replyBuilder.addReplyType(ReplyType.closedLevel);
@@ -79,8 +83,10 @@ public class ChatBot {
 				break;
 				
 			case "/hint":
-				if (game != null)
-					replyBuilder.setHint(new ImageSearcher(game.hiddenWord).findImage());
+				if (game != null) {
+					replyBuilder.setPhoto(new ImageSearcher(game.hiddenWord).findImage());
+					replyBuilder.setTimer(new Timer(), new EmptyTask(), 1L);
+				}
 				else
 					replyBuilder.addReplyType(ReplyType.hintNotStartedGame);
 				break;
@@ -114,14 +120,16 @@ public class ChatBot {
 			game = null;
 			replyBuilder.addReplyType(ReplyType.show);
 			replyBuilder.addReplyType(ReplyType.end);
+			replyBuilder.setTimer(new Timer(), new EmptyTask(), 1L);
 		}
 	}
 	
-	private void replyStartGame(BotReplyBuilder replyBuilder) {
+	private void replyStartGame(BotReplyBuilder replyBuilder, Bot bot) {
 		replyBuilder.addReplyType(ReplyType.start);
 		replyBuilder.addReplyType(ReplyType.show);
 		replyBuilder.setWrongGuesses(game.getWrongGuesses());
 		replyBuilder.setGuessedWord(game.showWord());
+		replyBuilder.setTimer(new Timer(), new HintRequestTask(id, bot), 60000L);
 	}
 	
 	private void replyDefault(BotReplyBuilder replyBuilder, String message) {

@@ -21,9 +21,12 @@ public class BotMessageMaker {
 			textFragments.add(getReplyFragment(reply.replyTypes.get(i), reply));
 		}
 		return new BotMessage(String.join(
-				"\n", textFragments), photoName, getAvailableOperations(reply), reply.hint,
+				"\n", textFragments), photoName, getAvailableOperations(reply), reply.photo,
 				reply.replyTypes.contains(ReplyType.start),
-				reply.replyTypes.contains(ReplyType.end));
+				reply.replyTypes.contains(ReplyType.end), 
+				reply.timer,
+				reply.task,
+				reply.delay);
 	}
 
 	private String getTurnResultReplyFragment(BotReply reply) {
